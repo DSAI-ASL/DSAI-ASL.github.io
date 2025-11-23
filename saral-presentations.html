@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saral Presentations – Autonomous Simulations Lab</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f9f9f9;
+            color: #333;
+            line-height: 1.6;
+        }
+        header {
+            background: #002147;
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+        }
+        header img {
+            max-width: 120px;
+            height: auto;
+            vertical-align: middle;
+        }
+        header h1 {
+            margin: 10px 0 0;
+            font-size: 2.2em;
+        }
+        nav {
+            background: #003366;
+            padding: 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        nav li {
+            margin: 0;
+        }
+        nav a {
+            display: block;
+            color: white;
+            text-decoration: none;
+            padding: 15px 25px;
+            transition: background 0.3s ease;
+        }
+        nav a:hover {
+            background: #004080;
+        }
+        nav a.active {
+            background: #004d99;
+            font-weight: bold;
+        }
+        main {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .page-intro {
+            padding: 30px 0;
+            border-bottom: 2px solid #eee;
+        }
+        .page-intro h2 {
+            color: #002147;
+            margin-top: 0;
+        }
+        .page-intro p {
+            font-size: 1.1em;
+        }
+        .saral-link {
+            background: #e8f5e9;
+            padding: 15px 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+            border-left: 4px solid #4caf50;
+        }
+        .saral-link a {
+            color: #002147;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        .saral-link a:hover {
+            text-decoration: underline;
+        }
+        .presentations-container {
+            padding: 30px 0;
+        }
+        .paper-item {
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: box-shadow 0.3s ease;
+        }
+        .paper-item:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .paper-header {
+            background: #f0f7ff;
+            padding: 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.3s ease;
+            border-left: 5px solid #002147;
+        }
+        .paper-header:hover {
+            background: #e3f2fd;
+        }
+        .paper-header.active {
+            background: #002147;
+            color: white;
+        }
+        .paper-header-title {
+            flex: 1;
+            font-weight: bold;
+            font-size: 1.15em;
+            line-height: 1.4;
+        }
+        .paper-header-icon {
+            font-size: 1.5em;
+            transition: transform 0.3s ease;
+            margin-left: 15px;
+            flex-shrink: 0;
+        }
+        .paper-header.active .paper-header-icon {
+            transform: rotate(180deg);
+        }
+        .paper-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+            background: white;
+        }
+        .paper-content.active {
+            max-height: 4000px;
+        }
+        .paper-content-inner {
+            padding: 25px;
+        }
+        .video-container {
+            position: relative;
+            width: 100%;
+            height: 0;
+            padding-bottom: 56.25%;
+            margin: 20px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            background: #002147;
+        }
+        .video-container video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .video-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        .video-placeholder .icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        .paper-info {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 6px;
+            margin-top: 20px;
+        }
+        .paper-authors {
+            font-style: italic;
+            margin-bottom: 15px;
+            color: #555;
+            font-size: 1.05em;
+        }
+        .paper-abstract {
+            margin-bottom: 15px;
+            text-align: justify;
+            line-height: 1.7;
+        }
+        .paper-keywords {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 15px;
+        }
+        .paper-keywords span {
+            font-weight: bold;
+        }
+        .paper-citation {
+            font-size: 0.85em;
+            color: #555;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed #ccc;
+        }
+        .video-format-notice {
+            background: #fff3cd;
+            padding: 10px 15px;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-size: 0.9em;
+            border-left: 4px solid #ffc107;
+        }
+        .paper-links {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+        .paper-links a {
+            display: inline-block;
+            margin-right: 15px;
+            color: #002147;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 8px 15px;
+            border: 2px solid #002147;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        .paper-links a:hover {
+            background: #002147;
+            color: white;
+        }
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: #eee;
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 40px;
+        }
+        @media (max-width:600px) {
+            header h1 {
+                font-size: 1.6em;
+            }
+            nav ul {
+                flex-direction: column;
+            }
+            nav a {
+                padding: 12px 20px;
+                border-bottom: 1px solid #004080;
+            }
+            main {
+                margin: 20px auto;
+            }
+            .paper-header {
+                padding: 15px;
+            }
+            .paper-header-title {
+                font-size: 1em;
+            }
+            .paper-content-inner {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="logo.png" alt="Lab Logo – IIT Madras">
+        <h1>Autonomous Simulations Lab<br>Data Science &amp; AI, IIT Madras</h1>
+    </header>
+    
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="saral-presentations.html" class="active">Saral Presentations</a></li>
+            <li><a href="#papers">Papers</a></li>
+            <li><a href="#projects">Projects</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+    </nav>
+    
+    <main>
+        <div class="page-intro">
+            <h2>Saral Presentations</h2>
+            <p>Research presentations generated using AI-powered tools to communicate our findings effectively.</p>
+            
+            <div class="saral-link">
+                <p><strong>🎥 Powered by Saral:</strong> These presentations were generated using <a href="http://saral.democratiseresearch.in" target="_blank">Saral - Democratise Research</a>, an innovative platform that transforms research papers into engaging video presentations.</p>
+            </div>
+        </div>
+        
+        <div class="presentations-container">
+            
+            <!-- Paper 1: PIELM -->
+            <div class="paper-item">
+                <div class="paper-header" onclick="togglePaper(this)">
+                    <div class="paper-header-title">
+                        Physics Informed Extreme Learning Machine (PIELM) – A rapid method for the numerical solution of partial differential equations
+                    </div>
+                    <div class="paper-header-icon">▼</div>
+                </div>
+                <div class="paper-content">
+                    <div class="paper-content-inner">
+                        <div class="video-container">
+                            <video controls poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='450' viewBox='0 0 800 450'%3E%3Crect width='800' height='450' fill='%23002147'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='24' fill='white'%3EPIELM Paper Presentation%3C/text%3E%3C/svg%3E">
+                                <source src="https://raw.githubusercontent.com/ASL-DSAI/ASL-DSAI.github.io/main/assets/presentation_b8a3e179-eec1-41e3-bb7c-d896ca1047f2.mov" type="video/quicktime">
+                                <source src="https://raw.githubusercontent.com/ASL-DSAI/ASL-DSAI.github.io/main/assets/presentation_b8a3e179-eec1-41e3-bb7c-d896ca1047f2.mp4" type="video/mp4">
+                                <div class="video-placeholder">
+                                    <div class="icon">📹</div>
+                                    <p>Your browser doesn't support the video tag or the video format.</p>
+                                    <p><a href="https://raw.githubusercontent.com/ASL-DSAI/ASL-DSAI.github.io/main/assets/presentation_b8a3e179-eec1-41e3-bb7c-d896ca1047f2.mov" style="color: white; text-decoration: underline;">Download the MOV video</a></p>
+                                </div>
+                            </video>
+                        </div>
+                        
+                        <div class="video-format-notice">
+                            <strong>Note:</strong> If the video doesn't play automatically, try downloading it directly using the link above.
+                        </div>
+                        
+                        <div class="paper-info">
+                            <div class="paper-authors">
+                                Vikas Dwivedi*, Balaji Srinivasan
+                            </div>
+                            
+                            <div class="paper-abstract">
+                                <strong>Abstract:</strong> There has been rapid progress recently on the application of deep networks to the solution of partial differential equations, collectively labeled as Physics Informed Neural Networks (PINNs). In this paper, We develop Physics Informed Extreme Learning Machine (PIELM), a rapid version of PINNs which can be applied to stationary and time-dependent linear partial differential equations. We demonstrate that PIELM matches or exceeds the accuracy of PINNs on a range of problems. We also discuss the limitations of neural network-based approaches, including our PIELM, in the solution of PDEs on large domains and suggest an extension, a distributed version of our algorithm – DPIELM. We show that DPIELM produces excellent results comparable to conventional numerical techniques in the solution of time-dependent problems. Collectively, this work contributes towards making the use of neural networks in the solution of partial differential equations in complex domains as a competitive alternative to conventional discretization techniques.
+                            </div>
+                            
+                            <div class="paper-keywords">
+                                <span>Keywords:</span> Partial differential equations, Physics informed neural networks, Extreme learning machine, Advection-Diffusion equation
+                            </div>
+                            
+                            <div class="paper-citation">
+                                <strong>Citation:</strong> Vikas Dwivedi, Balaji Srinivasan, "Physics Informed Extreme Learning Machine (PIELM) – A rapid method for the numerical solution of partial differential equations," 2020, Elsevier B.V.
+                            </div>
+                            
+                            <div class="paper-links">
+                                <a href="#" target="_blank">📄 Full Paper</a>
+                                <a href="#" target="_blank">📊 Dataset</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Template for Paper 2 - Copy and modify this structure -->
+            <!--
+            <div class="paper-item">
+                <div class="paper-header" onclick="togglePaper(this)">
+                    <div class="paper-header-title">
+                        [Paper Title Here]
+                    </div>
+                    <div class="paper-header-icon">▼</div>
+                </div>
+                <div class="paper-content">
+                    <div class="paper-content-inner">
+                        <div class="video-container">
+                            <video controls>
+                                <source src="[VIDEO_URL].mp4" type="video/mp4">
+                                <source src="[VIDEO_URL].mov" type="video/quicktime">
+                            </video>
+                        </div>
+                        
+                        <div class="paper-info">
+                            <div class="paper-authors">
+                                [Author Names]
+                            </div>
+                            
+                            <div class="paper-abstract">
+                                <strong>Abstract:</strong> [Abstract text here]
+                            </div>
+                            
+                            <div class="paper-keywords">
+                                <span>Keywords:</span> [Keywords here]
+                            </div>
+                            
+                            <div class="paper-citation">
+                                <strong>Citation:</strong> [Citation details]
+                            </div>
+                            
+                            <div class="paper-links">
+                                <a href="#" target="_blank">📄 Full Paper</a>
+                                <a href="#" target="_blank">📊 Dataset</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            -->
+            
+        </div>
+    </main>
+    
+    <footer>
+        &copy; 2025 Autonomous Simulations Lab, IIT Madras. All rights reserved.
+    </footer>
+
+    <script>
+        function togglePaper(header) {
+            const content = header.nextElementSibling;
+            const allHeaders = document.querySelectorAll('.paper-header');
+            const allContents = document.querySelectorAll('.paper-content');
+            
+            // Close all other papers
+            allHeaders.forEach(h => {
+                if (h !== header) {
+                    h.classList.remove('active');
+                }
+            });
+            allContents.forEach(c => {
+                if (c !== content) {
+                    c.classList.remove('active');
+                }
+            });
+            
+            // Toggle current paper
+            header.classList.toggle('active');
+            content.classList.toggle('active');
+        }
+        
+        // Video loading handler
+        document.addEventListener('DOMContentLoaded', function() {
+            const videos = document.querySelectorAll('video');
+            
+            videos.forEach(video => {
+                video.addEventListener('error', function() {
+                    console.log('Video failed to load');
+                }, true);
+            });
+        });
+    </script>
+</body>
+</html>
