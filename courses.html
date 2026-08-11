@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Courses – Autonomous Simulations Lab, DSAI IIT Madras</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f9f9f9;
+            color: #333;
+            line-height: 1.6;
+        }
+        header {
+            background: #002147;
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+        }
+        header img {
+            max-width: 120px;
+            height: auto;
+            vertical-align: middle;
+        }
+        header h1 {
+            margin: 10px 0 0;
+            font-size: 2.2em;
+        }
+        nav {
+            background: #003366;
+            padding: 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        nav li {
+            margin: 0;
+        }
+        nav a {
+            display: block;
+            color: white;
+            text-decoration: none;
+            padding: 15px 25px;
+            transition: background 0.3s ease;
+        }
+        nav a:hover {
+            background: #004080;
+        }
+        nav a.active {
+            background: #004d99;
+            font-weight: bold;
+        }
+        main {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .page-intro {
+            padding: 30px 0;
+            border-bottom: 2px solid #eee;
+        }
+        .page-intro h2 {
+            color: #002147;
+            margin-top: 0;
+        }
+        .page-intro p {
+            font-size: 1.1em;
+        }
+        .courses-container {
+            padding: 30px 0;
+        }
+        .course-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+        .course-card-header {
+            background: #002147;
+            color: white;
+            padding: 22px 25px;
+        }
+        .course-code {
+            display: inline-block;
+            background: #ffffff;
+            color: #002147;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 0.85em;
+        }
+        .course-card-header h3 {
+            margin: 12px 0 0;
+            font-size: 1.5em;
+            line-height: 1.3;
+        }
+        .course-card-header .course-term {
+            margin-top: 6px;
+            font-size: 0.95em;
+            color: #cfe0f5;
+        }
+        .course-body {
+            padding: 25px;
+        }
+        .course-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            background: #f0f7ff;
+            border-left: 5px solid #002147;
+            padding: 20px 25px;
+            border-radius: 6px;
+            margin-bottom: 25px;
+        }
+        .course-meta div span {
+            display: block;
+            font-size: 0.8em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #55688a;
+            font-weight: bold;
+        }
+        .course-meta a {
+            color: #002147;
+        }
+        .course-body h4 {
+            color: #002147;
+            border-bottom: 2px solid #e5e5e5;
+            padding-bottom: 6px;
+            margin: 30px 0 14px;
+            font-size: 1.15em;
+        }
+        .course-body h4:first-of-type {
+            margin-top: 0;
+        }
+        .course-body p {
+            text-align: justify;
+        }
+        .outcomes {
+            margin-left: 20px;
+        }
+        .module {
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 18px 22px;
+            margin-bottom: 15px;
+            background: #fcfcfc;
+        }
+        .module h5 {
+            margin: 0 0 8px;
+            color: #002147;
+            font-size: 1.05em;
+        }
+        .module ol {
+            margin: 0;
+            padding-left: 22px;
+        }
+        .module .module-note {
+            margin: 8px 0 0;
+            font-size: 0.9em;
+            color: #666;
+        }
+        table.materials {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.97em;
+        }
+        table.materials th {
+            background: #002147;
+            color: white;
+            text-align: left;
+            padding: 12px 14px;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        table.materials td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #eee;
+            vertical-align: top;
+        }
+        table.materials tr:nth-child(even) td {
+            background: #fafcff;
+        }
+        table.materials td.lect-no {
+            font-weight: bold;
+            color: #002147;
+            white-space: nowrap;
+        }
+        table.materials td.lect-date {
+            white-space: nowrap;
+            color: #555;
+        }
+        .slide-link {
+            display: inline-block;
+            color: #002147;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 6px 12px;
+            border: 2px solid #002147;
+            border-radius: 4px;
+            font-size: 0.9em;
+            white-space: nowrap;
+            margin: 2px 6px 2px 0;
+            transition: all 0.3s ease;
+        }
+        .slide-link:hover {
+            background: #002147;
+            color: white;
+        }
+        .pending {
+            color: #888;
+            font-style: italic;
+            font-size: 0.9em;
+        }
+        .slide-preview {
+            margin-top: 25px;
+        }
+        .slide-preview iframe {
+            width: 100%;
+            height: 620px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: #002147;
+        }
+        .slide-preview .caption {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 8px;
+        }
+        .notice {
+            background: #fff3cd;
+            padding: 12px 18px;
+            border-radius: 4px;
+            font-size: 0.92em;
+            border-left: 4px solid #ffc107;
+            margin-top: 15px;
+        }
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: #eee;
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 40px;
+        }
+        @media (max-width:600px) {
+            header h1 {
+                font-size: 1.6em;
+            }
+            nav ul {
+                flex-direction: column;
+            }
+            nav a {
+                padding: 12px 20px;
+                border-bottom: 1px solid #004080;
+            }
+            main {
+                margin: 20px auto;
+            }
+            .course-card-header, .course-body, .course-meta {
+                padding: 18px;
+            }
+            table.materials th, table.materials td {
+                padding: 10px 8px;
+                font-size: 0.9em;
+            }
+            .slide-preview iframe {
+                height: 380px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="logo.png" alt="Lab Logo – IIT Madras">
+        <h1>Autonomous Simulations Lab<br>Data Science &amp; AI, IIT Madras</h1>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="courses.html" class="active">Courses</a></li>
+            <li><a href="saral-presentations.html">Saral Presentations</a></li>
+            <li><a href="index.html#papers">Papers</a></li>
+            <li><a href="index.html#projects">Projects</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <div class="page-intro">
+            <h2>Courses</h2>
+            <p>Lecture slides and supporting material are posted here through the semester.</p>
+        </div>
+
+        <div class="courses-container">
+
+            <!-- ===================== DA3452 ===================== -->
+            <div class="course-card" id="da3452">
+                <div class="course-card-header">
+                    <div class="course-code">DA3452</div>
+                    <h3>Speech and Language Technology</h3>
+                    <div class="course-term">Jul – Nov 2026 &nbsp;•&nbsp; Data Science &amp; Artificial Intelligence, IIT Madras</div>
+                </div>
+
+                <div class="course-body">
+                    <div class="course-meta">
+                        <div>
+                            <span>Course Code</span>
+                            DA3452
+                        </div>
+                        <div>
+                            <span>Instructor</span>
+                            Prof. Balaji Srinivasan
+                        </div>
+                        <div>
+                            <span>Contact</span>
+                            <a href="mailto:sbalaji@dsai.iitm.ac.in">sbalaji@dsai.iitm.ac.in</a>
+                        </div>
+                    </div>
+
+                    <h4>About the Course</h4>
+                    <p>This course develops the computational foundations of speech and language technology — how human language, in text and in speech, is represented, modelled, and processed by machines. Starting from the representation of raw text as sequences of code points, the course builds up through normalization, tokenization, and vector representations of documents, towards statistical and neural models of language and speech.</p>
+
+                    <h4>Course Outline</h4>
+                    <div class="module">
+                        <h5>Module 1 — Representing Language Computationally</h5>
+                        <ol>
+                            <li>The text representation problem</li>
+                            <li>Characters and Unicode</li>
+                            <li>Normalized text &rarr; subword tokens (BPE)</li>
+                            <li>Tokens &rarr; document vectors (Bag-of-Words, TF–IDF)</li>
+                        </ol>
+                    </div>
+                    <div class="module">
+                        <h5>Further Modules</h5>
+                        <p class="module-note">Subsequent modules will be announced in class and listed here as the semester progresses.</p>
+                    </div>
+
+                    <h4>Lecture Slides</h4>
+                    <table class="materials">
+                        <thead>
+                            <tr>
+                                <th>Lecture</th>
+                                <th>Date</th>
+                                <th>Topic</th>
+                                <th>Slides</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="lect-no">Lecture 4</td>
+                                <td class="lect-date">11 Aug 2026</td>
+                                <td>Concluding BPE, Bag-of-Words, TF–IDF <br><span class="pending">Module 1: Representing Language Computationally — Tokenization</span></td>
+                                <td>
+                                    <a class="slide-link" href="courses/da3452/DA3452_Lect04_20260811.pdf" target="_blank">📄 View PDF</a>
+                                    <a class="slide-link" href="courses/da3452/DA3452_Lect04_20260811.pdf" download>⬇ Download</a>
+                                </td>
+                            </tr>
+
+                            <!--
+                            TEMPLATE: copy this row for each new lecture, drop the PDF into
+                            courses/da3452/ and update the href in both links.
+
+                            <tr>
+                                <td class="lect-no">Lecture 5</td>
+                                <td class="lect-date">[DD Mon YYYY]</td>
+                                <td>[Topic] <br><span class="pending">[Module name]</span></td>
+                                <td>
+                                    <a class="slide-link" href="courses/da3452/[FILENAME].pdf" target="_blank">📄 View PDF</a>
+                                    <a class="slide-link" href="courses/da3452/[FILENAME].pdf" download>⬇ Download</a>
+                                </td>
+                            </tr>
+                            -->
+                        </tbody>
+                    </table>
+
+                    <div class="notice">
+                        <strong>Note:</strong> Slides for earlier and forthcoming lectures will be posted on this page as they become available.
+                    </div>
+
+                    <div class="slide-preview">
+                        <h4>Latest Deck — Lecture 4</h4>
+                        <iframe src="courses/da3452/DA3452_Lect04_20260811.pdf" title="DA3452 Lecture 4 slides – Concluding BPE, Bag-of-Words, TF-IDF"></iframe>
+                        <p class="caption">Speech and Language Technology (DA3452), Lecture 4 — 11 Aug 2026. If the preview does not render in your browser, use the <a href="courses/da3452/DA3452_Lect04_20260811.pdf" target="_blank">View PDF</a> link above.</p>
+                    </div>
+                </div>
+            </div>
+            <!-- =================== end DA3452 =================== -->
+
+            <!--
+            TEMPLATE: to add another course, copy the block below, uncomment it,
+            and fill in the details.
+
+            <div class="course-card" id="[course-code-lowercase]">
+                <div class="course-card-header">
+                    <div class="course-code">[COURSE CODE]</div>
+                    <h3>[Course Title]</h3>
+                    <div class="course-term">[Term] &nbsp;•&nbsp; [Department], IIT Madras</div>
+                </div>
+                <div class="course-body">
+                    <div class="course-meta">
+                        <div><span>Course Code</span>[CODE]</div>
+                        <div><span>Instructor</span>[Name]</div>
+                        <div><span>Contact</span><a href="mailto:[email]">[email]</a></div>
+                        <div><span>Semester</span>[Term]</div>
+                    </div>
+                    <h4>About the Course</h4>
+                    <p>[Description]</p>
+                    <h4>Lecture Slides</h4>
+                    <table class="materials">
+                        <thead>
+                            <tr><th>Lecture</th><th>Date</th><th>Topic</th><th>Slides</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="lect-no">Lecture 1</td>
+                                <td class="lect-date">[Date]</td>
+                                <td>[Topic]</td>
+                                <td><a class="slide-link" href="[path].pdf" target="_blank">📄 View PDF</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            -->
+
+        </div>
+    </main>
+
+    <footer>
+        &copy; 2025 Autonomous Simulations Lab, IIT Madras. All rights reserved.
+    </footer>
+</body>
+</html>

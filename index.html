@@ -108,6 +108,46 @@
         .cta-button:hover {
             background: #003366;
         }
+        .course-entry {
+            border: 1px solid #ddd;
+            border-left: 5px solid #002147;
+            border-radius: 6px;
+            padding: 18px 22px;
+            margin-bottom: 15px;
+            background: #fcfcfc;
+            transition: box-shadow 0.3s ease;
+        }
+        .course-entry:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .course-entry .code {
+            display: inline-block;
+            background: #002147;
+            color: white;
+            font-size: 0.8em;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            padding: 3px 10px;
+            border-radius: 4px;
+        }
+        .course-entry h3 {
+            margin: 10px 0 4px;
+            color: #002147;
+            font-size: 1.2em;
+        }
+        .course-entry .term {
+            font-size: 0.9em;
+            color: #666;
+            margin: 0 0 10px;
+        }
+        .course-entry a.details {
+            color: #002147;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        .course-entry a.details:hover {
+            text-decoration: underline;
+        }
         footer {
             text-align: center;
             padding: 20px;
@@ -141,6 +181,7 @@
     <nav>
         <ul>
             <li><a href="index.html" class="active">Home</a></li>
+            <li><a href="courses.html">Courses</a></li>
             <li><a href="saral-presentations.html">Saral Presentations</a></li>
             <li><a href="#papers">Papers</a></li>
             <li><a href="#projects">Projects</a></li>
@@ -164,6 +205,21 @@
             <p>To lead in the integration of high-fidelity simulation environments, AI-driven automation, and robust autonomous system design — enabling next-generation solutions for robotics, mobility, and multi-agent systems in real-world scenarios.</p>
         </div>
         
+        <div class="section" id="courses">
+            <h2>Courses</h2>
+            <p>Courses offered by the lab in the Data Science &amp; AI programme. Lecture slides are published through the semester on the course page.</p>
+
+            <div class="course-entry">
+                <div class="code">DA3452</div>
+                <h3>Speech and Language Technology</h3>
+                <p class="term">Prof. Balaji Srinivasan &nbsp;•&nbsp; Jul – Nov 2026</p>
+                <p>Computational foundations of speech and language processing — text representation and Unicode, normalization, subword tokenization (BPE), and document vector representations such as Bag-of-Words and TF–IDF, building towards statistical and neural models of language.</p>
+                <a class="details" href="courses.html#da3452">View course page &amp; lecture slides →</a>
+            </div>
+
+            <a href="courses.html" class="cta-button">All Courses →</a>
+        </div>
+
         <div class="section" id="papers">
             <h2>Our Recent Papers</h2>
             <ul>
