@@ -224,6 +224,12 @@
             font-style: italic;
             font-size: 0.9em;
         }
+        .topic-module {
+            display: inline-block;
+            margin-top: 4px;
+            color: #55688a;
+            font-size: 0.85em;
+        }
         .slide-preview {
             margin-top: 25px;
         }
@@ -361,9 +367,36 @@
                         </thead>
                         <tbody>
                             <tr>
+                                <td class="lect-no">Lecture 1</td>
+                                <td class="lect-date">28 Jul 2026</td>
+                                <td>Introduction to the course <br><span class="topic-module">Course administration and overview</span></td>
+                                <td>
+                                    <a class="slide-link" href="courses/da3452/DA3452_Lect01_20260727.pdf" target="_blank">📄 View PDF</a>
+                                    <a class="slide-link" href="courses/da3452/DA3452_Lect01_20260727.pdf" download>⬇ Download</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="lect-no">Lecture 2</td>
+                                <td class="lect-date">29 Jul 2026</td>
+                                <td>Characters, Unicode and Text Normalization <br><span class="topic-module">Module 1: Representing Language Computationally</span></td>
+                                <td>
+                                    <a class="slide-link" href="courses/da3452/DA3452_Lect02_20260729.pdf" target="_blank">📄 View PDF</a>
+                                    <a class="slide-link" href="courses/da3452/DA3452_Lect02_20260729.pdf" download>⬇ Download</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="lect-no">Lecture 3</td>
+                                <td class="lect-date">4 Aug 2026</td>
+                                <td>Text Normalization, Byte Pair Encoding (BPE) <br><span class="topic-module">Module 1: Text Normalization to Subword Tokens</span></td>
+                                <td>
+                                    <a class="slide-link" href="courses/da3452/DA3452_Lect03_20260803.pdf" target="_blank">📄 View PDF</a>
+                                    <a class="slide-link" href="courses/da3452/DA3452_Lect03_20260803.pdf" download>⬇ Download</a>
+                                </td>
+                            </tr>
+                            <tr>
                                 <td class="lect-no">Lecture 4</td>
                                 <td class="lect-date">11 Aug 2026</td>
-                                <td>Concluding BPE, Bag-of-Words, TF–IDF <br><span class="pending">Module 1: Representing Language Computationally — Tokenization</span></td>
+                                <td>Concluding BPE, Bag-of-Words, TF–IDF <br><span class="topic-module">Module 1: Representing Language Computationally — Tokenization</span></td>
                                 <td>
                                     <a class="slide-link" href="courses/da3452/DA3452_Lect04_20260811.pdf" target="_blank">📄 View PDF</a>
                                     <a class="slide-link" href="courses/da3452/DA3452_Lect04_20260811.pdf" download>⬇ Download</a>
@@ -377,7 +410,7 @@
                             <tr>
                                 <td class="lect-no">Lecture 5</td>
                                 <td class="lect-date">[DD Mon YYYY]</td>
-                                <td>[Topic] <br><span class="pending">[Module name]</span></td>
+                                <td>[Topic] <br><span class="topic-module">[Module name]</span></td>
                                 <td>
                                     <a class="slide-link" href="courses/da3452/[FILENAME].pdf" target="_blank">📄 View PDF</a>
                                     <a class="slide-link" href="courses/da3452/[FILENAME].pdf" download>⬇ Download</a>
@@ -387,8 +420,54 @@
                         </tbody>
                     </table>
 
+                    <h4>Notebooks &amp; Code</h4>
+                    <table class="materials">
+                        <thead>
+                            <tr>
+                                <th>Notebook</th>
+                                <th>Date</th>
+                                <th>Contents</th>
+                                <th>Links</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="lect-no">Characters</td>
+                                <td class="lect-date">4 Aug 2026</td>
+                                <td>Characters, code points and Unicode normalization in Python <br><span class="topic-module">Companion notebook to Lecture 3</span></td>
+                                <td>
+                                    <a class="slide-link" href="https://github.com/DSAI-ASL/DSAI-ASL.github.io/blob/main/courses/da3452/DA3452_Lect03_Characters_20260804.ipynb" target="_blank">📓 View notebook</a>
+                                    <a class="slide-link" href="courses/da3452/DA3452_Lect03_Characters_20260804.ipynb" download>⬇ Download .ipynb</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h4>Assignments</h4>
+                    <table class="materials">
+                        <thead>
+                            <tr>
+                                <th>Assignment</th>
+                                <th>Topic</th>
+                                <th>Status</th>
+                                <th>Links</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="lect-no">Weekend Reading<br>&amp; Coding 1</td>
+                                <td>Words, Unicode, UTF-32 and UTF-8 <br><span class="topic-module">Reading (Jurafsky &amp; Martin, Ch. 2), manual UTF-8 conversion, four-byte encoder</span></td>
+                                <td><span class="pending">Not for submission — material may be tested in the module assessment and end-semester examination</span></td>
+                                <td>
+                                    <a class="slide-link" href="courses/da3452/DA3452_Weekend_Reading_Coding_Assignment_01.pdf" target="_blank">📄 View PDF</a>
+                                    <a class="slide-link" href="courses/da3452/DA3452_Weekend_Reading_Coding_Assignment_01.pdf" download>⬇ Download</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
                     <div class="notice">
-                        <strong>Note:</strong> Slides for earlier and forthcoming lectures will be posted on this page as they become available.
+                        <strong>Note:</strong> Slides, notebooks and assignments for forthcoming lectures will be posted on this page as they become available.
                     </div>
 
                     <div class="slide-preview">
