@@ -171,6 +171,11 @@
             font-size: 0.9em;
             color: #666;
         }
+        .table-wrap {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
         table.materials {
             width: 100%;
             border-collapse: collapse;
@@ -261,6 +266,56 @@
             font-size: 0.9em;
             margin-top: 40px;
         }
+        /* Stack the material tables into labelled cards on narrow screens */
+        @media (max-width:700px) {
+            table.materials thead {
+                display: none;
+            }
+            table.materials,
+            table.materials tbody,
+            table.materials tr,
+            table.materials td {
+                display: block;
+                width: 100%;
+            }
+            table.materials tr {
+                border: 1px solid #e0e0e0;
+                border-left: 4px solid #002147;
+                border-radius: 6px;
+                margin-bottom: 15px;
+                overflow: hidden;
+            }
+            table.materials tr:nth-child(even) td,
+            table.materials td {
+                background: white;
+            }
+            table.materials td {
+                border-bottom: 1px solid #f1f1f1;
+                padding: 10px 14px;
+            }
+            table.materials tr td:last-child {
+                border-bottom: none;
+            }
+            table.materials td::before {
+                content: attr(data-label);
+                display: block;
+                font-size: 0.72em;
+                text-transform: uppercase;
+                letter-spacing: 0.6px;
+                color: #55688a;
+                font-weight: bold;
+                margin-bottom: 3px;
+            }
+            table.materials td.lect-no,
+            table.materials td.lect-date {
+                white-space: normal;
+            }
+            .slide-link {
+                display: block;
+                text-align: center;
+                margin: 8px 0 0;
+            }
+        }
         @media (max-width:600px) {
             header h1 {
                 font-size: 1.6em;
@@ -279,8 +334,8 @@
                 padding: 18px;
             }
             table.materials th, table.materials td {
-                padding: 10px 8px;
-                font-size: 0.9em;
+                padding: 10px 14px;
+                font-size: 0.92em;
             }
             .slide-preview iframe {
                 height: 380px;
@@ -356,6 +411,7 @@
                     </div>
 
                     <h4>Lecture Slides</h4>
+                    <div class="table-wrap">
                     <table class="materials">
                         <thead>
                             <tr>
@@ -367,46 +423,46 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td class="lect-no">Lecture 1</td>
-                                <td class="lect-date">28 Jul 2026</td>
-                                <td>Introduction to the course <br><span class="topic-module">Course administration and overview</span></td>
-                                <td>
+                                <td data-label="Lecture" class="lect-no">Lecture 1</td>
+                                <td data-label="Date" class="lect-date">28 Jul 2026</td>
+                                <td data-label="Topic">Introduction to the course <br><span class="topic-module">Course administration and overview</span></td>
+                                <td data-label="Slides">
                                     <a class="slide-link" href="courses/da3452/DA3452_Lect01_20260727.pdf" target="_blank">📄 View PDF</a>
                                     <a class="slide-link" href="courses/da3452/DA3452_Lect01_20260727.pdf" download>⬇ Download</a>
                                 </td>
                             </tr>
                             <tr>
-                                <td class="lect-no">Lecture 2</td>
-                                <td class="lect-date">29 Jul 2026</td>
-                                <td>Characters, Unicode and Text Normalization <br><span class="topic-module">Module 1: Representing Language Computationally</span></td>
-                                <td>
+                                <td data-label="Lecture" class="lect-no">Lecture 2</td>
+                                <td data-label="Date" class="lect-date">29 Jul 2026</td>
+                                <td data-label="Topic">Characters, Unicode and Text Normalization <br><span class="topic-module">Module 1: Representing Language Computationally</span></td>
+                                <td data-label="Slides">
                                     <a class="slide-link" href="courses/da3452/DA3452_Lect02_20260729.pdf" target="_blank">📄 View PDF</a>
                                     <a class="slide-link" href="courses/da3452/DA3452_Lect02_20260729.pdf" download>⬇ Download</a>
                                 </td>
                             </tr>
                             <tr>
-                                <td class="lect-no">Lecture 3</td>
-                                <td class="lect-date">4 Aug 2026</td>
-                                <td>Text Normalization, Byte Pair Encoding (BPE) <br><span class="topic-module">Module 1: Text Normalization to Subword Tokens</span></td>
-                                <td>
+                                <td data-label="Lecture" class="lect-no">Lecture 3</td>
+                                <td data-label="Date" class="lect-date">4 Aug 2026</td>
+                                <td data-label="Topic">Text Normalization, Byte Pair Encoding (BPE) <br><span class="topic-module">Module 1: Text Normalization to Subword Tokens</span></td>
+                                <td data-label="Slides">
                                     <a class="slide-link" href="courses/da3452/DA3452_Lect03_20260803.pdf" target="_blank">📄 View PDF</a>
                                     <a class="slide-link" href="courses/da3452/DA3452_Lect03_20260803.pdf" download>⬇ Download</a>
                                 </td>
                             </tr>
                             <tr>
-                                <td class="lect-no">Lecture 4</td>
-                                <td class="lect-date">11 Aug 2026</td>
-                                <td>Concluding BPE, Bag-of-Words, TF–IDF <br><span class="topic-module">Module 1: Representing Language Computationally — Tokenization</span></td>
-                                <td>
+                                <td data-label="Lecture" class="lect-no">Lecture 4</td>
+                                <td data-label="Date" class="lect-date">11 Aug 2026</td>
+                                <td data-label="Topic">Concluding BPE, Bag-of-Words, TF–IDF <br><span class="topic-module">Module 1: Representing Language Computationally — Tokenization</span></td>
+                                <td data-label="Slides">
                                     <a class="slide-link" href="courses/da3452/DA3452_Lect04_20260811.pdf" target="_blank">📄 View PDF</a>
                                     <a class="slide-link" href="courses/da3452/DA3452_Lect04_20260811.pdf" download>⬇ Download</a>
                                 </td>
                             </tr>
                             <tr>
-                                <td class="lect-no">Lecture 5</td>
-                                <td class="lect-date">12 Aug 2026</td>
-                                <td>TF–IDF <br><span class="topic-module">Module 1: Tokens &rarr; Document Vectors (BoW + TF–IDF)</span></td>
-                                <td>
+                                <td data-label="Lecture" class="lect-no">Lecture 5</td>
+                                <td data-label="Date" class="lect-date">12 Aug 2026</td>
+                                <td data-label="Topic">TF–IDF <br><span class="topic-module">Module 1: Tokens &rarr; Document Vectors (BoW + TF–IDF)</span></td>
+                                <td data-label="Slides">
                                     <a class="slide-link" href="courses/da3452/DA3452_Lect05_20260812.pdf" target="_blank">📄 View PDF</a>
                                     <a class="slide-link" href="courses/da3452/DA3452_Lect05_20260812.pdf" download>⬇ Download</a>
                                 </td>
@@ -417,10 +473,10 @@
                             courses/da3452/ and update the href in both links.
 
                             <tr>
-                                <td class="lect-no">Lecture 5</td>
-                                <td class="lect-date">[DD Mon YYYY]</td>
-                                <td>[Topic] <br><span class="topic-module">[Module name]</span></td>
-                                <td>
+                                <td data-label="Lecture" class="lect-no">Lecture 5</td>
+                                <td data-label="Date" class="lect-date">[DD Mon YYYY]</td>
+                                <td data-label="Topic">[Topic] <br><span class="topic-module">[Module name]</span></td>
+                                <td data-label="Slides">
                                     <a class="slide-link" href="courses/da3452/[FILENAME].pdf" target="_blank">📄 View PDF</a>
                                     <a class="slide-link" href="courses/da3452/[FILENAME].pdf" download>⬇ Download</a>
                                 </td>
@@ -428,8 +484,10 @@
                             -->
                         </tbody>
                     </table>
+                    </div>
 
                     <h4>Notebooks &amp; Code</h4>
+                    <div class="table-wrap">
                     <table class="materials">
                         <thead>
                             <tr>
@@ -441,18 +499,20 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td class="lect-no">Characters</td>
-                                <td class="lect-date">4 Aug 2026</td>
-                                <td>Characters, code points and Unicode normalization in Python <br><span class="topic-module">Companion notebook to Lecture 3</span></td>
-                                <td>
+                                <td data-label="Notebook" class="lect-no">Characters</td>
+                                <td data-label="Date" class="lect-date">4 Aug 2026</td>
+                                <td data-label="Contents">Characters, code points and Unicode normalization in Python <br><span class="topic-module">Companion notebook to Lecture 3</span></td>
+                                <td data-label="Links">
                                     <a class="slide-link" href="https://github.com/DSAI-ASL/DSAI-ASL.github.io/blob/main/courses/da3452/DA3452_Lect03_Characters_20260804.ipynb" target="_blank">📓 View notebook</a>
                                     <a class="slide-link" href="courses/da3452/DA3452_Lect03_Characters_20260804.ipynb" download>⬇ Download .ipynb</a>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
+                    </div>
 
                     <h4>Assignments</h4>
+                    <div class="table-wrap">
                     <table class="materials">
                         <thead>
                             <tr>
@@ -464,16 +524,17 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td class="lect-no">Weekend Reading<br>&amp; Coding 1</td>
-                                <td>Words, Unicode, UTF-32 and UTF-8 <br><span class="topic-module">Reading (Jurafsky &amp; Martin, Ch. 2), manual UTF-8 conversion, four-byte encoder</span></td>
-                                <td><span class="pending">Not for submission — material may be tested in the module assessment and end-semester examination</span></td>
-                                <td>
+                                <td data-label="Assignment" class="lect-no">Weekend Reading<br>&amp; Coding 1</td>
+                                <td data-label="Topic">Words, Unicode, UTF-32 and UTF-8 <br><span class="topic-module">Reading (Jurafsky &amp; Martin, Ch. 2), manual UTF-8 conversion, four-byte encoder</span></td>
+                                <td data-label="Status"><span class="pending">Not for submission — material may be tested in the module assessment and end-semester examination</span></td>
+                                <td data-label="Links">
                                     <a class="slide-link" href="courses/da3452/DA3452_Weekend_Reading_Coding_Assignment_01.pdf" target="_blank">📄 View PDF</a>
                                     <a class="slide-link" href="courses/da3452/DA3452_Weekend_Reading_Coding_Assignment_01.pdf" download>⬇ Download</a>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
+                    </div>
 
                     <div class="notice">
                         <strong>Note:</strong> Slides, notebooks and assignments for forthcoming lectures will be posted on this page as they become available.
@@ -508,19 +569,21 @@
                     <h4>About the Course</h4>
                     <p>[Description]</p>
                     <h4>Lecture Slides</h4>
+                    <div class="table-wrap">
                     <table class="materials">
                         <thead>
                             <tr><th>Lecture</th><th>Date</th><th>Topic</th><th>Slides</th></tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td class="lect-no">Lecture 1</td>
-                                <td class="lect-date">[Date]</td>
-                                <td>[Topic]</td>
-                                <td><a class="slide-link" href="[path].pdf" target="_blank">📄 View PDF</a></td>
+                                <td data-label="Lecture" class="lect-no">Lecture 1</td>
+                                <td data-label="Date" class="lect-date">[Date]</td>
+                                <td data-label="Topic">[Topic]</td>
+                                <td data-label="Slides"><a class="slide-link" href="[path].pdf" target="_blank">📄 View PDF</a></td>
                             </tr>
                         </tbody>
                     </table>
+                    </div>
                 </div>
             </div>
             -->
