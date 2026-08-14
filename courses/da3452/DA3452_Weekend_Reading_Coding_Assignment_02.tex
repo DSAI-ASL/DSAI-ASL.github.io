@@ -1,0 +1,589 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[a4paper,margin=22mm,headheight=14pt]{geometry}
+\usepackage{fontspec}
+\setmainfont{Liberation Serif}
+\setsansfont{Liberation Sans}
+\setmonofont{DejaVu Sans Mono}[Scale=0.88]
+
+\usepackage{xcolor}
+\definecolor{slate}{HTML}{344B52}
+\definecolor{teal}{HTML}{0B7A75}
+\definecolor{orange}{HTML}{D97706}
+\definecolor{pale}{HTML}{F5F1E7}
+\definecolor{lightblue}{HTML}{E9F3F6}
+\definecolor{lightgreen}{HTML}{EEF5E7}
+\definecolor{codebg}{HTML}{F4F6F7}
+\definecolor{coderule}{HTML}{A8B7BD}
+
+\usepackage{titlesec}
+\titleformat{\section}{\Large\bfseries\sffamily\color{slate}}{}{0pt}{}
+\titleformat{\subsection}{\large\bfseries\sffamily\color{teal}}{}{0pt}{}
+\titlespacing*{\section}{0pt}{1.2em}{0.5em}
+\titlespacing*{\subsection}{0pt}{1em}{0.35em}
+
+\usepackage{enumitem}
+\setlist[itemize]{leftmargin=1.6em,itemsep=0.25em,topsep=0.35em}
+\setlist[enumerate]{leftmargin=1.8em,itemsep=0.35em,topsep=0.35em}
+
+\usepackage{booktabs,tabularx,array}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\renewcommand{\arraystretch}{1.18}
+
+\usepackage[most]{tcolorbox}
+\newtcolorbox{noticebox}{
+  colback=pale,
+  colframe=orange,
+  boxrule=0.8pt,
+  arc=2mm,
+  left=4mm,right=4mm,top=2.5mm,bottom=2.5mm
+}
+\newtcolorbox{objectivebox}{
+  colback=lightblue,
+  colframe=slate,
+  boxrule=0.6pt,
+  arc=2mm,
+  left=4mm,right=4mm,top=2.5mm,bottom=2.5mm
+}
+\newtcolorbox{checkbox}{
+  colback=lightgreen,
+  colframe=teal,
+  boxrule=0.6pt,
+  arc=2mm,
+  left=4mm,right=4mm,top=2.5mm,bottom=2.5mm
+}
+
+\usepackage{listings}
+\lstdefinestyle{pythonstyle}{
+  language=Python,
+  backgroundcolor=\color{codebg},
+  frame=single,
+  rulecolor=\color{coderule},
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{teal}\bfseries,
+  commentstyle=\color{gray!80!black}\itshape,
+  stringstyle=\color{orange!85!black},
+  showstringspaces=false,
+  breaklines=true,
+  columns=fullflexible,
+  keepspaces=true,
+  tabsize=4,
+  xleftmargin=0.4em,
+  framexleftmargin=0.3em,
+  aboveskip=0.6em,
+  belowskip=0.6em
+}
+\lstset{style=pythonstyle}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\sffamily DA3452 -- Speech and Language Technology}
+\rhead{\sffamily Weekend Reading and Coding Assignment 2}
+\cfoot{\sffamily\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\usepackage[hidelinks]{hyperref}
+\usepackage{microtype}
+\usepackage{amsmath}
+
+\begin{document}
+
+\begin{center}
+  {\sffamily\bfseries\color{slate}\LARGE DA3452 -- Speech and Language Technology}\par
+  \vspace{0.35em}
+  {\sffamily\bfseries\color{teal}\Large Weekend Reading and Coding Assignment 2}\par
+  \vspace{0.2em}
+  {\sffamily\large Normalization, BPE, Corpora, Bag-of-Words, and TF--IDF}
+\end{center}
+
+\begin{noticebox}
+\textbf{Status of this assignment.} This sheet is \textbf{not for submission}. However, every student is responsible for the reading, concepts, hand calculations, and coding exercises described here. The material may be tested in the Module 1 assessment and the end-semester examination.
+\end{noticebox}
+
+\begin{objectivebox}
+\textbf{By the end of this work, you should be able to:}
+\begin{itemize}
+  \item explain why Unicode normalization is needed and apply NFC normalization in Python;
+  \item distinguish Unicode normalization from task-specific text normalization;
+  \item train a small character-level BPE tokenizer and use its fixed merge rules to encode unseen words;
+  \item explain the distinction between character-level and byte-level BPE;
+  \item construct Bag-of-Words document vectors and a document--term matrix;
+  \item compute log-weighted TF, DF, IDF, and TF--IDF using the course convention; and
+  \item explain what these representations preserve, collapse, and discard.
+\end{itemize}
+\end{objectivebox}
+
+\begin{checkbox}
+\textbf{Scope relative to Assignment 1.} Assignment 1 already covered Jurafsky--Martin Sections 2.1--2.3 and the UTF-32/UTF-8 encoding exercises. This sheet starts with material that was \textbf{not assigned in Assignment 1} and completes the independent-study work for Module 1.
+
+\medskip
+\textbf{Lecture 6 note.} The n-gram language-model material begun in Lecture 6 belongs to \textbf{Module 2}. It is not part of this Module 1 weekend assignment and is not part of the Module 1 test boundary.
+\end{checkbox}
+
+\section{Part A: Required reading}
+
+Read the following portions of Daniel Jurafsky and James H. Martin, \emph{Speech and Language Processing}, 3rd edition draft.
+
+\subsection{Chapter 2 -- Words and Tokens}
+
+\begin{itemize}
+  \item \textbf{Section 2.4 -- Subword Tokenization: Byte-Pair Encoding}
+    \begin{itemize}
+      \item Section 2.4.1 -- BPE training
+      \item Section 2.4.2 -- BPE encoder
+      \item Section 2.4.3 -- BPE in practice
+    \end{itemize}
+  \item \textbf{Section 2.5 -- Corpora}
+\end{itemize}
+
+\subsection{Chapter 11 -- Retrieval-based Models}
+
+Read only the following parts of Section 11.1:
+
+\begin{itemize}
+  \item \textbf{Section 11.1.1 -- Representing documents as vectors}
+  \item \textbf{Section 11.1.2 -- Term weighting}, through the definition of TF--IDF in \textbf{Eq. 11.6}
+\end{itemize}
+
+\begin{noticebox}
+\textbf{Stop after TF--IDF.} Do not continue to Section 11.1.3 (Document Scoring) for this assignment or for Module Test 1. Cosine similarity has been used in class for intuition, but detailed document scoring is outside the Module 1 test boundary.
+\end{noticebox}
+
+\subsection{Lecture material to review alongside the reading}
+
+The following ideas were developed in class and are also examinable, even where the textbook treatment is brief or different in emphasis:
+
+\begin{itemize}
+  \item canonical equivalence and NFC Unicode normalization;
+  \item Unicode normalization versus task-specific normalization;
+  \item tokenizer training versus tokenizer encoding;
+  \item character-level versus byte-level BPE;
+  \item vocabulary size versus sequence length;
+  \item token fertility and why it can differ across languages;
+  \item sparsity of Bag-of-Words representations; and
+  \item what Bag-of-Words and TF--IDF preserve, collapse, and discard.
+\end{itemize}
+
+\subsection{Questions you should be able to answer after reading}
+
+Prepare brief answers, in your own words, to the following questions:
+
+\begin{enumerate}
+  \item Why does subword tokenization help with unseen words?
+  \item What does the BPE \emph{trainer} learn, and what does the BPE \emph{encoder} do with a new input?
+  \item Why must learned BPE merge rules be applied in their learned order?
+  \item Why are BPE subwords not necessarily linguistic morphemes?
+  \item What changes when BPE starts from UTF-8 bytes rather than Unicode characters?
+  \item What is gained and lost as the BPE vocabulary becomes larger?
+  \item Why can multilingual tokenizers use more tokens for the same amount of content in one language than in another?
+  \item Why should corpus statistics be interpreted as properties of a particular collection rather than universal properties of a language?
+  \item In a Bag-of-Words model, what determines the dimension of a document vector?
+  \item Why can a short document have a very high-dimensional but sparse vector?
+  \item What is the difference between term count, document frequency, and term frequency as used in this course?
+  \item Why does a term occurring in every document receive IDF equal to zero under the course convention?
+  \item What information can TF--IDF reweight, and what information can it not recover once Bag-of-Words has discarded it?
+\end{enumerate}
+
+\section{Part B: Unicode normalization in Python}
+
+Two strings may look identical while containing different code-point sequences. Work with the following pair:
+
+\begin{lstlisting}
+a = "caf\u00E9"   # precomposed e-acute
+b = "cafe\u0301"  # e followed by combining acute accent
+\end{lstlisting}
+
+Write a short program that, \textbf{before normalization}, prints:
+
+\begin{enumerate}
+  \item the two strings;
+  \item whether \texttt{a == b};
+  \item \texttt{len(a)} and \texttt{len(b)}; and
+  \item the Unicode code points in each string in \texttt{U+XXXX} notation.
+\end{enumerate}
+
+Then normalize both strings using NFC:
+
+\begin{lstlisting}
+import unicodedata
+
+a_nfc = unicodedata.normalize("NFC", a)
+b_nfc = unicodedata.normalize("NFC", b)
+\end{lstlisting}
+
+Repeat the four checks above after normalization.
+
+\subsection{A small task-normalization experiment}
+
+Consider the following strings:
+
+\begin{lstlisting}
+texts = [
+    "Apple",
+    "apple",
+    "I'M READY!",
+    "I'm ready!",
+    "Rs. 1,000",
+]
+\end{lstlisting}
+
+Write two simple preprocessing functions:
+
+\begin{enumerate}
+  \item one that performs \textbf{only NFC normalization};
+  \item one that performs NFC normalization and then lowercases the text.
+\end{enumerate}
+
+Do \textbf{not} automatically remove punctuation, contractions, or numbers. Instead, answer:
+
+\begin{itemize}
+  \item Which distinctions did lowercasing remove?
+  \item Could those distinctions matter for some NLP tasks?
+  \item Why is NFC normalization conceptually different from deciding to lowercase text?
+\end{itemize}
+
+\begin{checkbox}
+\textbf{Key distinction.} Unicode normalization standardizes equivalent Unicode representations. Task-specific normalization deliberately decides which distinctions the model should keep or discard.
+\end{checkbox}
+
+\section{Part C: Train and use a small BPE tokenizer}
+
+Implement the \textbf{character-level classroom version} of BPE. Do not use a tokenizer library for this part.
+
+Use the following weighted corpus, keeping the words in this order:
+
+\begin{lstlisting}
+word_counts = [
+    ("new", 2),
+    ("renew", 2),
+    ("set", 1),
+    ("reset", 1),
+]
+\end{lstlisting}
+
+Represent each word initially as a tuple of characters. For example:
+
+\begin{lstlisting}
+("new", 2) -> (("n", "e", "w"), 2)
+\end{lstlisting}
+
+\subsection{Step 1: Count adjacent pairs}
+
+Write a function:
+
+\begin{lstlisting}
+def count_pairs(symbol_sequences):
+    """
+    Return weighted counts of adjacent symbol pairs.
+    Each sequence has an associated word frequency.
+    """
+    pass
+\end{lstlisting}
+
+A pair that appears once inside a word whose corpus frequency is 2 contributes \textbf{2} to the pair count.
+
+For reproducibility, use the following tie-breaking rule:
+
+\begin{noticebox}
+If two pairs have the same weighted frequency, choose the pair that is encountered first when scanning the words in the order listed above, from left to right within each word.
+\end{noticebox}
+
+With this rule, your first three learned merges should begin:
+
+\begin{center}
+\begin{tabular}{c c c}
+\toprule
+\textbf{Step} & \textbf{Selected pair} & \textbf{New token} \\
+\midrule
+1 & \texttt{n + e} & \texttt{ne} \\
+2 & \texttt{ne + w} & \texttt{new} \\
+3 & \texttt{r + e} & \texttt{re} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Step 2: Merge a selected pair}
+
+Write a function that replaces every non-overlapping occurrence of a selected adjacent pair by the merged token:
+
+\begin{lstlisting}
+def merge_pair(sequence, pair):
+    """Merge one adjacent symbol pair throughout one sequence."""
+    pass
+\end{lstlisting}
+
+Test it on simple cases before using it inside the trainer.
+
+\subsection{Step 3: Train for \texorpdfstring{$k$}{k} merges}
+
+Write:
+
+\begin{lstlisting}
+def train_bpe(word_counts, k):
+    """
+    Train character-level BPE for k merges.
+    Return the ordered merge rules and the final vocabulary.
+    """
+    pass
+\end{lstlisting}
+
+Train for \texttt{k = 5}. Record the ordered merge rules. Check that each training iteration:
+
+\begin{itemize}
+  \item counts pairs using corpus frequencies;
+  \item selects one most frequent pair;
+  \item adds exactly one new token to the vocabulary; and
+  \item updates the corpus representation before the next count.
+\end{itemize}
+
+\subsection{Step 4: Encode an unseen word using fixed rules}
+
+Now write a separate encoder:
+
+\begin{lstlisting}
+def encode_bpe(word, merge_rules):
+    """
+    Start from characters and apply the learned merge rules
+    in their learned order. Do not learn anything new here.
+    """
+    pass
+\end{lstlisting}
+
+Use your learned rules to encode:
+
+\begin{lstlisting}
+"newest"
+"renew"
+"reset"
+\end{lstlisting}
+
+For \texttt{newest}, the first two rules should produce the sequence:
+
+\begin{center}
+\texttt{n e w e s t} $\rightarrow$ \texttt{ne w e s t} $\rightarrow$ \texttt{new e s t}
+\end{center}
+
+Explain why the unseen word does \textbf{not} need to be added to the vocabulary during encoding.
+
+\subsection{Character-level versus byte-level starting symbols}
+
+Run:
+
+\begin{lstlisting}
+text = "\u00E9"
+print([f"U+{ord(c):04X}" for c in text])
+print([f"{b:02X}" for b in text.encode("utf-8")])
+\end{lstlisting}
+
+Explain what the initial symbol sequence would be for:
+
+\begin{itemize}
+  \item a character-level BPE tokenizer; and
+  \item a byte-level BPE tokenizer.
+\end{itemize}
+
+You are \textbf{not} required to implement a complete byte-level BPE tokenizer in this assignment.
+
+\section{Part D: Build Bag-of-Words document vectors}
+
+For this part, use the following small corpus:
+
+\begin{lstlisting}
+documents = [
+    "language models learn from language data",
+    "speech models learn from speech data",
+    "translation models learn from parallel data",
+    "retrieval models search document data",
+]
+\end{lstlisting}
+
+For this controlled exercise, assume that the strings are already normalized, lowercased, punctuation-free, and whitespace-tokenized. Do not add stemming or stop-word removal.
+
+\subsection{Step 1: Construct the feature vocabulary}
+
+Write a function that:
+
+\begin{enumerate}
+  \item collects every distinct word type in the corpus;
+  \item includes each type exactly once; and
+  \item returns the feature vocabulary in alphabetical order.
+\end{enumerate}
+
+\begin{lstlisting}
+def build_vocabulary(documents):
+    pass
+\end{lstlisting}
+
+Answer:
+
+\begin{itemize}
+  \item What is $|V|$ for this corpus?
+  \item Why does \texttt{language} appear only once in the vocabulary even though it occurs twice in the first document?
+  \item Would a different fixed vocabulary ordering change the meaning of the representation if every document used that same ordering consistently?
+\end{itemize}
+
+\subsection{Step 2: Construct count vectors}
+
+Write:
+
+\begin{lstlisting}
+def bow_vector(document, vocabulary):
+    """Return the Bag-of-Words count vector for one document."""
+    pass
+\end{lstlisting}
+
+Then construct the full \textbf{document--term matrix}: rows are documents and columns are feature-vocabulary terms.
+
+\begin{lstlisting}
+def document_term_matrix(documents, vocabulary):
+    pass
+\end{lstlisting}
+
+Check the first document carefully by hand before trusting your program.
+
+\subsection{Step 3: Inspect sparsity}
+
+Compute:
+
+\begin{itemize}
+  \item the total number of matrix entries;
+  \item the number of zero entries;
+  \item the number of non-zero entries; and
+  \item the fraction of entries that are zero.
+\end{itemize}
+
+Then produce a sparse dictionary representation of the first document containing only non-zero feature/count pairs.
+
+Answer: does sparse storage change the mathematical document vector, or only how it is stored?
+
+\section{Part E: Implement TF--IDF from scratch}
+
+Use the exact convention used in class and in Jurafsky--Martin Section 11.1.2.
+
+For a term $t$ and document $d$, let $c(t,d)$ be the raw count. Define log-weighted term frequency as
+
+\[
+\operatorname{tf}(t,d)=
+\begin{cases}
+1+\log_{10} c(t,d), & c(t,d)>0,\\
+0, & c(t,d)=0.
+\end{cases}
+\]
+
+Let $\operatorname{df}_t$ be the number of documents containing $t$, and let $N$ be the number of documents. Define
+
+\[
+\operatorname{idf}_t = \log_{10}\left(\frac{N}{\operatorname{df}_t}\right),
+\]
+
+and
+
+\[
+\operatorname{tfidf}(t,d) = \operatorname{tf}(t,d)\operatorname{idf}_t.
+\]
+
+\subsection{Step 1: Implement the components}
+
+Write functions of the following form:
+
+\begin{lstlisting}
+import math
+
+def log_tf(count):
+    pass
+
+
+def document_frequency(term, tokenized_documents):
+    pass
+
+
+def idf(df, n_documents):
+    pass
+\end{lstlisting}
+
+Then construct the TF--IDF vector for every document, using the \textbf{same feature vocabulary and ordering} as in Part D.
+
+\subsection{Step 2: Hand-check selected values}
+
+Before relying on the full matrix, calculate by hand:
+
+\begin{enumerate}
+  \item $\operatorname{df}$ and $\operatorname{idf}$ for \texttt{models};
+  \item $\operatorname{df}$ and $\operatorname{idf}$ for \texttt{learn};
+  \item $\operatorname{df}$ and $\operatorname{idf}$ for \texttt{language};
+  \item TF for \texttt{language} in the first document; and
+  \item TF--IDF for \texttt{language} in the first document.
+\end{enumerate}
+
+Your program should agree with your hand calculations up to ordinary floating-point rounding.
+
+\subsection{Step 3: Change the corpus and reason about the result}
+
+Add a fifth document:
+
+\begin{lstlisting}
+"language technology uses language models"
+\end{lstlisting}
+
+Recompute the feature vocabulary, DF, IDF, and TF--IDF values.
+
+Answer:
+
+\begin{enumerate}
+  \item Which terms changed document frequency?
+  \item Did the IDF of \texttt{language} increase or decrease? Why?
+  \item Can an existing document's TF--IDF vector change even when the document itself has not changed?
+  \item What does this tell you about TF--IDF being \emph{corpus-relative}?
+\end{enumerate}
+
+\begin{checkbox}
+\textbf{Do not use \texttt{sklearn} to implement the main calculation.} The purpose is to make the representation and weighting visible. After your own implementation works, you may optionally compare it with a library implementation, taking care to check whether the library uses exactly the same TF and IDF conventions.
+\end{checkbox}
+
+\section{Part F: Representation choices and failure cases}
+
+For each pair below, state whether a unigram Bag-of-Words count vector would distinguish the two texts, and briefly explain why.
+
+\begin{enumerate}
+  \item \texttt{dog bites man} versus \texttt{man bites dog}
+  \item \texttt{car} versus \texttt{automobile}
+  \item \texttt{river bank} versus \texttt{bank loan}
+  \item \texttt{not good but funny} versus \texttt{good but not funny}
+\end{enumerate}
+
+Then answer:
+
+\begin{itemize}
+  \item Which failures are caused by discarded word order or composition?
+  \item Which are caused by using separate vocabulary coordinates for related words?
+  \item Which are caused by collapsing different senses of the same word into one coordinate?
+  \item Can changing TF--IDF weights alone repair these representation limitations?
+\end{itemize}
+
+\section{Self-check before the Module 1 test}
+
+You should be able to complete all of the following without consulting this sheet:
+
+\begin{itemize}
+  \item explain canonical equivalence and show what NFC normalization changes computationally;
+  \item distinguish Unicode normalization from task-specific normalization;
+  \item train a small BPE tokenizer by hand for several merge steps;
+  \item apply a fixed ordered list of BPE merges to an unseen word;
+  \item distinguish tokenizer training from tokenizer encoding;
+  \item explain character-level versus byte-level BPE;
+  \item reason about vocabulary size, sequence length, and token fertility;
+  \item define document, corpus, and feature vocabulary;
+  \item construct and interpret a Bag-of-Words document vector and document--term matrix;
+  \item explain sparsity;
+  \item compute TF, DF, IDF, and TF--IDF for a small corpus using the course convention;
+  \item explain why a term appearing in every document receives IDF zero; and
+  \item explain what Bag-of-Words and TF--IDF preserve, collapse, and discard.
+\end{itemize}
+
+\vfill
+\begin{center}
+{\sffamily\color{slate}\small Keep your code, hand calculations, and answers for revision. The work is not collected, but the underlying concepts and procedures are examinable.}
+\end{center}
+
+\end{document}
