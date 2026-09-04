@@ -253,16 +253,49 @@
             font-size: 0.9em;
             margin-top: 40px;
         }
+        .nav-toggle {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 14px 20px;
+            margin-left: auto;
+        }
+        .nav-toggle span {
+            display: block;
+            width: 24px;
+            height: 2px;
+            background: white;
+            margin: 5px 0;
+            transition: all 0.3s ease;
+            border-radius: 2px;
+        }
+        .nav-toggle[aria-expanded="true"] span:nth-child(1) {
+            transform: translateY(7px) rotate(45deg);
+        }
+        .nav-toggle[aria-expanded="true"] span:nth-child(2) {
+            opacity: 0;
+        }
+        .nav-toggle[aria-expanded="true"] span:nth-child(3) {
+            transform: translateY(-7px) rotate(-45deg);
+        }
         @media (max-width:600px) {
-            header h1 {
-                font-size: 1.6em;
+            nav {
+                position: relative;
+            }
+            .nav-toggle {
+                display: block;
             }
             nav ul {
+                display: none;
                 flex-direction: column;
+                width: 100%;
             }
-            nav a {
-                padding: 12px 20px;
-                border-bottom: 1px solid #004080;
+            nav ul.nav-open {
+                display: flex;
+            }
+            header h1 {
+                font-size: 1.6em;
             }
             main {
                 margin: 20px auto;
@@ -286,7 +319,10 @@
     </header>
     
     <nav>
-        <ul>
+        <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="nav-menu">
+            <span></span><span></span><span></span>
+        </button>
+        <ul id="nav-menu">
             <li><a href="index.html">Home</a></li>
             <li><a href="courses.html">Courses</a></li>
             <li><a href="saral-presentations.html" class="active">Saral Presentations</a></li>
@@ -565,6 +601,19 @@
                 }, true);
             });
         });
+    </script>
+    <script>
+    document.querySelector('.nav-toggle').addEventListener('click', function() {
+        var expanded = this.getAttribute('aria-expanded') === 'true';
+        this.setAttribute('aria-expanded', String(!expanded));
+        document.getElementById('nav-menu').classList.toggle('nav-open', !expanded);
+    });
+    document.getElementById('nav-menu').querySelectorAll('a').forEach(function(a) {
+        a.addEventListener('click', function() {
+            document.querySelector('.nav-toggle').setAttribute('aria-expanded','false');
+            document.getElementById('nav-menu').classList.remove('nav-open');
+        });
+    });
     </script>
 </body>
 </html>
