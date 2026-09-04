@@ -1084,17 +1084,5 @@
         });
     });
     </script>
-    <script>
-    (function() {
-        function applyLayout() {
-            var wide = window.matchMedia('(min-width: 700px)').matches;
-            document.querySelectorAll('details.section-details.desktop-open').forEach(function(d) {
-                d.open = wide;
-            });
-        }
-        document.addEventListener('DOMContentLoaded', applyLayout);
-        window.addEventListener('resize', applyLayout);
-    })();
-    </script>
 </body>
 </html>
