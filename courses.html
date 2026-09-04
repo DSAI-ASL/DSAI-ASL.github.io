@@ -367,6 +367,36 @@
             #da3452-calendar td { box-sizing:border-box; min-height:0; height:auto; border-top:0; border-radius:0; }
             #da3452-calendar td::before { content:attr(data-label); display:block; margin-bottom:4px; color:var(--muted); font-size:.7em; font-weight:bold; letter-spacing:.55px; text-transform:uppercase; }
         }
+        /* ---- Collapsible sections ---- */
+        details.section-details {
+            margin: 20px 0 0;
+        }
+        details.section-details > summary.section-summary {
+            list-style: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #002147;
+            border-bottom: 2px solid #e5e5e5;
+            padding-bottom: 6px;
+            margin-bottom: 14px;
+            font-size: 1.15em;
+            font-weight: bold;
+            font-family: Arial, sans-serif;
+            user-select: none;
+        }
+        details.section-details > summary.section-summary::-webkit-details-marker { display: none; }
+        details.section-details > summary.section-summary::before {
+            content: "\25B8\00a0";
+            font-size: 0.85em;
+            color: #55688a;
+            flex-shrink: 0;
+        }
+        details.section-details[open] > summary.section-summary::before {
+            content: "\25BE\00a0";
+        }
+        details.section-details > summary.section-summary:hover { color: #004080; }
         footer {
             text-align: center;
             padding: 20px;
@@ -527,8 +557,8 @@
                         <p class="module-note">Subsequent modules will be announced in class and listed here as the semester progresses.</p>
                     </div>
 
-                    <section id="da3452-calendar" aria-labelledby="da3452-calendar-heading">
-                      <h4 id="da3452-calendar-heading">Course Calendar</h4>
+                    <details class="section-details always-closed" id="section-calendar">
+                      <summary class="section-summary">Course Calendar</summary>
                       <p class="calendar-intro">The calendar covers the remaining instructional period from 1 September to 6 November 2026. Future module labels are tentative and will be refined as each class is taught.</p>
                       <p class="calendar-summary"><strong>26 teaching lectures remain</strong>, counting 1 September and excluding module tests and the 20 October institute holiday.</p>
                       <div class="calendar-legend" aria-label="Calendar legend">
@@ -606,9 +636,10 @@
                         </table>
                       </div>
                       <p class="calendar-note"><strong>Assessment note:</strong> Module-test syllabus boundaries are slightly porous. The precise scope of each test will depend on the material actually covered by that point and will be announced before the test.</p>
-                    </section>
+                    </details>
 
-                    <h4>Lecture Slides</h4>
+                    <details class="section-details always-closed" id="section-lectures">
+                      <summary class="section-summary">Lecture Slides</summary>
                     <div class="table-wrap">
                     <table class="materials">
                         <thead>
@@ -745,8 +776,10 @@
                         </tbody>
                     </table>
                     </div>
+                    </details>
 
-                    <h4>Notebooks &amp; Code</h4>
+                    <details class="section-details desktop-open" id="section-notebooks">
+                      <summary class="section-summary">Notebooks &amp; Code</summary>
                     <div class="table-wrap">
                     <table class="materials">
                         <thead>
@@ -770,8 +803,10 @@
                         </tbody>
                     </table>
                     </div>
+                    </details>
 
-                    <h4>Assignments</h4>
+                    <details class="section-details desktop-open" id="section-assignments">
+                      <summary class="section-summary">Assignments</summary>
                     <div class="table-wrap">
                     <table class="materials">
                         <thead>
@@ -849,8 +884,10 @@
                             </ol>
                         </div>
                     </details>
+                    </details>
 
-                    <h4>Assessment Schedule</h4>
+                    <details class="section-details desktop-open" id="section-assessments">
+                      <summary class="section-summary">Assessment Schedule</summary>
                     <div class="table-wrap">
                     <table class="materials">
                         <thead>
@@ -904,8 +941,10 @@
                         </tbody>
                     </table>
                     </div>
+                    </details>
 
-                    <h4>Preparation Guides</h4>
+                    <details class="section-details desktop-open" id="section-prepguides">
+                      <summary class="section-summary">Preparation Guides</summary>
                     <div class="table-wrap">
                     <table class="materials">
                         <thead>
@@ -929,6 +968,7 @@
                         </tbody>
                     </table>
                     </div>
+                    </details>
 
                     <div class="notice">
                         <strong>Note:</strong> Slides, notebooks, assignments and assessment guides for forthcoming lectures will be posted on this page as they become available. Some classes are taught entirely on the board and therefore have no slide deck — the topic and the corresponding reading are still listed above. Question papers will be posted after each test.
@@ -988,5 +1028,17 @@
     <footer>
         &copy; 2025 Autonomous Simulations Lab, IIT Madras. All rights reserved.
     </footer>
+    <script>
+    (function() {
+        function applyLayout() {
+            var wide = window.matchMedia('(min-width: 700px)').matches;
+            document.querySelectorAll('details.section-details.desktop-open').forEach(function(d) {
+                d.open = wide;
+            });
+        }
+        document.addEventListener('DOMContentLoaded', applyLayout);
+        window.addEventListener('resize', applyLayout);
+    })();
+    </script>
 </body>
 </html>
