@@ -359,6 +359,8 @@
         #da3452-calendar .holiday-event { background:#f2f2f2; border-left-color:#888; color:#555; }
         #da3452-calendar .tentative { border-left-style:dashed; }
         #da3452-calendar .calendar-note { margin:14px 0 0; padding:10px 14px; border-left:4px solid var(--muted); background:#f6f8fb; color:#555; font-size:.88em; }
+        #da3452-calendar-toast { position:fixed; left:50%; bottom:32px; transform:translateX(-50%) translateY(12px); background:#002147; color:#fff; padding:12px 20px; border-radius:6px; box-shadow:0 6px 20px rgba(0,0,0,.22); font-size:.95em; max-width:88vw; text-align:center; opacity:0; pointer-events:none; transition:opacity .22s ease, transform .22s ease; z-index:2000; }
+        #da3452-calendar-toast.visible { opacity:1; transform:translateX(-50%) translateY(0); }
         @media (max-width:700px) {
             #da3452-calendar table { border-spacing:0; margin:0; }
             #da3452-calendar thead { display:none; }
@@ -614,9 +616,9 @@
                           </thead>
                           <tbody>
                             <tr>
-                              <td data-label="Tuesday"><div class="calendar-date"><time datetime="2026-09-01">1 Sep</time></div><a class="calendar-event" href="#lecture-10" title="View lecture details in the course materials table"><span class="event-label">Lecture 10 · Module 2</span>Cross-entropy, perplexity &amp; intro to text classification</a></td>
+                              <td data-label="Tuesday"><div class="calendar-date"><time datetime="2026-09-01">1 Sep</time></div><a class="calendar-event no-slides" href="#lecture-10" data-no-slides-message="No slides for this lecture — Lecture 10 was taught on the board."><span class="event-label">Lecture 10 · Module 2</span>Cross-entropy, perplexity &amp; intro to text classification</a></td>
                               <td data-label="Wednesday"><div class="calendar-date"><time datetime="2026-09-02">2 Sep</time></div><a class="calendar-event" href="courses/da3452/DA3452_Lect11_20260902.pdf" target="_blank" rel="noopener" title="Open lecture slides (PDF)"><span class="event-label">Lecture 11 · Module 2</span>Text classification: accuracy, precision &amp; recall</a></td>
-                              <td data-label="Thursday"><div class="calendar-date"><time datetime="2026-09-03">3 Sep</time></div><a class="calendar-event" href="#lecture-12" title="View lecture details in the course materials table"><span class="event-label">Lecture 12 · Module 2</span>Word embeddings &amp; Word2Vec (SGNS)</a></td>
+                              <td data-label="Thursday"><div class="calendar-date"><time datetime="2026-09-03">3 Sep</time></div><a class="calendar-event no-slides" href="#lecture-12" data-no-slides-message="No slides for this lecture — Lecture 12 was taught on the board."><span class="event-label">Lecture 12 · Module 2</span>Word embeddings &amp; Word2Vec (SGNS)</a></td>
                               <td data-label="Friday"><div class="calendar-date"><time datetime="2026-09-04">4 Sep</time></div><a class="calendar-event" href="courses/da3452/DA3452_Lect13_20260904.pdf" target="_blank" rel="noopener" title="Open lecture slides (PDF)"><span class="event-label">Lecture 13 · Module 2</span>Word embeddings &amp; Word2Vec (SGNS)</a></td>
                             </tr>
                             <tr>
@@ -1121,6 +1123,30 @@
             document.getElementById('nav-menu').classList.remove('nav-open');
         });
     });
+    </script>
+    <div id="da3452-calendar-toast" role="status" aria-live="polite" aria-hidden="true"></div>
+    <script>
+    (function() {
+        var toast = document.getElementById('da3452-calendar-toast');
+        if (!toast) return;
+        var hideTimer;
+        function showToast(msg) {
+            toast.textContent = msg;
+            toast.classList.add('visible');
+            toast.setAttribute('aria-hidden', 'false');
+            clearTimeout(hideTimer);
+            hideTimer = setTimeout(function() {
+                toast.classList.remove('visible');
+                toast.setAttribute('aria-hidden', 'true');
+            }, 2800);
+        }
+        document.querySelectorAll('#da3452-calendar .calendar-event.no-slides').forEach(function(el) {
+            el.addEventListener('click', function(e) {
+                e.preventDefault();
+                showToast(el.getAttribute('data-no-slides-message') || 'No slides for this lecture.');
+            });
+        });
+    })();
     </script>
 </body>
 </html>
