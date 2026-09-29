@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Causal masking: a worked example</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F7F4EC; --panel:#FFFDF8; --ink:#1E2B40; --head:#1B3358; --muted:#5F6878;
+  --rule:#DCD4C4; --cat:#8A4595; --cat-bg:#F3E9F5; --future:#B23E43; --future-bg:#F8E4E3;
+  --key:#2C67A8; --key-bg:#E7F0FA; --ok:#2F7352; --ok-bg:#E6F2EA; --cell:#F1ECE1;
+  --heat:44,103,168;
+  --serif:"Source Serif 4", Georgia, "Times New Roman", serif;
+  --sans:"Figtree", "Segoe UI", system-ui, -apple-system, sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#151922; --panel:#1C222D; --ink:#E4DFD4; --head:#CFDCF0; --muted:#9AA3B2;
+    --rule:#343C4A; --cat:#D59BE0; --cat-bg:#35273B; --future:#F08E90; --future-bg:#3D2427;
+    --key:#86B6EA; --key-bg:#1F2E42; --ok:#8CCBA6; --ok-bg:#1E3329; --cell:#232A36; --heat:120,170,230;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#151922; --panel:#1C222D; --ink:#E4DFD4; --head:#CFDCF0; --muted:#9AA3B2;
+  --rule:#343C4A; --cat:#D59BE0; --cat-bg:#35273B; --future:#F08E90; --future-bg:#3D2427;
+  --key:#86B6EA; --key-bg:#1F2E42; --ok:#8CCBA6; --ok-bg:#1E3329; --cell:#232A36; --heat:120,170,230;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--serif);font-size:1.09rem;line-height:1.65;-webkit-font-smoothing:antialiased}
+main{max-width:52rem;margin:0 auto;padding:2.5rem 1.25rem 4rem}
+h1{font-size:clamp(2.1rem,5vw,3.1rem);line-height:1.1;color:var(--head);margin:0 0 .6rem;font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.55rem;color:var(--head);margin:0 0 .5rem;line-height:1.25;font-weight:600}
+h3{font-family:var(--sans);font-size:1rem;font-weight:600;color:var(--head);margin:1.4rem 0 .4rem}
+p{margin:.6rem 0;max-width:40em}
+.lede{font-size:1.2rem;color:var(--muted);max-width:36em}
+section.step{border-top:1px solid var(--rule);padding:2.2rem 0 .8rem;display:grid;grid-template-columns:3rem 1fr;gap:0 1rem}
+.num{font-family:var(--sans);font-weight:600;font-size:.95rem;color:var(--muted);width:2.2rem;height:2.2rem;border:1.5px solid var(--rule);border-radius:50%;display:grid;place-items:center;margin-top:.15rem}
+.step>div{min-width:0}
+.panel{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:1.1rem 1.2rem;margin:1rem 0}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.note{font-family:var(--sans);font-size:.93rem;color:var(--muted);line-height:1.55}
+.key{border-left:3px solid var(--future);background:var(--future-bg);padding:.8rem 1rem;border-radius:0 8px 8px 0;margin:1rem 0}
+.key.good{border-color:var(--ok);background:var(--ok-bg)}
+.cat{color:var(--cat);font-weight:600}.fut{color:var(--future);font-weight:600}.kc{color:var(--key);font-weight:600}.okc{color:var(--ok);font-weight:600}
+var,.m{font-style:italic;font-family:var(--serif)}
+b.v{font-style:normal;font-weight:700}
+sub{font-size:.7em}
+.tn{font-variant-numeric:tabular-nums lining-nums}
+
+/* sequence strip */
+.strip{display:grid;grid-template-columns:7.5rem repeat(4,minmax(4.6rem,1fr));gap:.35rem;min-width:30rem;font-family:var(--sans);font-size:.95rem}
+.strip .lab{color:var(--muted);align-self:center;font-size:.85rem}
+.strip .t{text-align:center;padding:.55rem .3rem;border-radius:7px;background:var(--cell);font-family:var(--serif);font-size:1.1rem}
+.strip .t.c{background:var(--cat-bg);color:var(--cat);font-weight:600;outline:2px solid var(--cat)}
+.strip .t.f{background:var(--future-bg);color:var(--future)}
+.strip .t.tg{background:transparent;border:1px dashed var(--rule)}
+.strip .t.tg.c{outline:none;border:2px dashed var(--cat);background:transparent}
+.strip .pos{text-align:center;color:var(--muted);font-size:.8rem}
+
+/* matrices */
+.mat{display:inline-grid;position:relative;padding:.15rem .55rem;gap:.05rem .8rem;vertical-align:middle;font-variant-numeric:tabular-nums;text-align:center}
+.mat::before,.mat::after{content:"";position:absolute;top:0;bottom:0;width:.4rem;border:1.5px solid currentColor}
+.mat::before{left:0;border-right:none}.mat::after{right:0;border-left:none}
+.mat span{min-width:1ch}
+.eqrow{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem 1rem;margin:.6rem 0}
+.mats{display:flex;flex-wrap:wrap;gap:1.2rem 2rem;align-items:center}
+.mats figure{margin:0;display:flex;align-items:center;gap:.5rem}
+.mats figcaption{font-family:var(--sans);font-size:.85rem;color:var(--muted);max-width:14rem;margin-left:.5rem}
+
+table{border-collapse:collapse;font-variant-numeric:tabular-nums;width:100%}
+th,td{border:1px solid var(--rule);padding:.45rem .6rem;text-align:center}
+th{font-family:var(--sans);font-weight:600;font-size:.88rem;color:var(--head);background:var(--key-bg)}
+td.l{text-align:left}
+tr.rc td{background:var(--cat-bg)}
+tr.rf td{background:var(--future-bg)}
+td.dim{color:var(--muted)}
+.work{font-family:var(--sans);font-size:.88rem;color:var(--muted)}
+
+/* bars */
+.bars{display:grid;gap:.45rem;font-family:var(--sans);font-size:.92rem}
+.bar{display:grid;grid-template-columns:4.2rem 1fr 3.6rem;align-items:center;gap:.6rem}
+.bar .track{height:1.25rem;background:var(--cell);border-radius:4px;overflow:hidden}
+.bar .fill{height:100%;background:var(--key);border-radius:4px;transition:width .35s ease}
+.bar.f .fill{background:var(--future)}
+.bar.x .track{background:repeating-linear-gradient(45deg,var(--cell),var(--cell) 6px,transparent 6px,transparent 11px)}
+.bar .w{text-align:right;font-variant-numeric:tabular-nums}
+.twin{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.twin .panel{margin:0}
+.twin h3{margin-top:0}
+.out{font-size:1.15rem;margin-top:.9rem}
+.leak{color:var(--future);font-weight:700}
+.zero{color:var(--ok);font-weight:700}
+
+/* lab */
+.controls{display:flex;flex-wrap:wrap;gap:1rem 1.6rem;font-family:var(--sans);font-size:.92rem;margin-bottom:1rem}
+.controls fieldset{border:none;padding:0;margin:0}
+.controls legend{font-weight:600;color:var(--head);margin-bottom:.35rem;padding:0}
+.seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+.seg label{position:relative}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg span{display:block;padding:.4rem .75rem;cursor:pointer;border-right:1px solid var(--rule);background:var(--panel)}
+.seg label:last-child span{border-right:none}
+.seg input:checked+span{background:var(--head);color:var(--bg)}
+.seg input:focus-visible+span{outline:2px solid var(--key);outline-offset:-3px}
+.grids{display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:1rem}
+.grid4 table{font-size:.9rem}
+.grid4 td{padding:.4rem .3rem;cursor:pointer}
+.grid4 tr.sel td,.grid4 tr.sel th{outline:2px solid var(--cat);outline-offset:-2px}
+.grid4 td.masked{color:var(--muted);background:repeating-linear-gradient(45deg,transparent,transparent 5px,var(--cell) 5px,var(--cell) 9px)}
+.grid4 td.fl{box-shadow:inset 0 0 0 2px var(--future)}
+.grid4 caption{font-family:var(--sans);font-weight:600;font-size:.9rem;color:var(--head);text-align:left;margin-bottom:.35rem}
+.verdict{font-family:var(--sans);font-size:.95rem;padding:.7rem .9rem;border-radius:8px;margin-top:1rem}
+.verdict.bad{background:var(--future-bg);color:var(--future)}
+.verdict.good{background:var(--ok-bg);color:var(--ok)}
+.verdict.warn{background:var(--key-bg);color:var(--key)}
+
+details{border:1px solid var(--rule);border-radius:8px;background:var(--panel);margin:.7rem 0;padding:.2rem 1rem}
+summary{cursor:pointer;padding:.6rem 0;font-weight:600;color:var(--head)}
+summary:focus-visible{outline:2px solid var(--key);outline-offset:2px}
+details p{margin-top:0}
+.themebtn{position:fixed;right:max(1rem,env(safe-area-inset-right,0px));top:calc(env(safe-area-inset-top,0px) + 1rem);font-family:var(--sans);font-size:.8rem;background:var(--panel);color:var(--ink);border:1px solid var(--rule);border-radius:999px;padding:.35rem .8rem;cursor:pointer;z-index:5}
+@media (max-width:640px){
+  body{font-size:1.02rem}
+  section.step{grid-template-columns:1fr}
+  .num{margin-bottom:.5rem}
+  .twin{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){.bar .fill{transition:none}}
+</style>
+</head>
+<body>
+<button class="themebtn" id="themeBtn" type="button">Theme</button>
+<main>
+<header>
+  <h1>Causal masking: a worked example</h1>
+  <p class="lede">This page computes decoder self-attention for the query at “cat”. It does the calculation without a causal mask and then with one, and shows where the unmasked version uses information from “slept”.</p>
+</header>
+
+<section class="step"><div class="num">1</div><div>
+  <h2>The task at position 3</h2>
+  <p>We translate <span lang="hi">बिल्ली सोई।</span> into “The cat slept.” During training the decoder receives the whole target sentence at once, shifted right by one position (teacher forcing). Each position must predict the token one step ahead.</p>
+  <div class="panel scroll">
+    <div class="strip">
+      <div></div><div class="pos">position 1</div><div class="pos">2</div><div class="pos">3</div><div class="pos">4</div>
+      <div class="lab">Decoder input</div><div class="t">⟨BOS⟩</div><div class="t">The</div><div class="t c">cat</div><div class="t f">slept</div>
+      <div class="lab">Must predict</div><div class="t tg">The</div><div class="t tg">cat</div><div class="t tg c">slept</div><div class="t tg">.</div>
+    </div>
+  </div>
+  <p>Position 3 holds <span class="cat">cat</span> and must output <span class="fut">slept</span>. During training, <span class="fut">slept</span> is also in the input at position 4. At inference it is not, because it has not been generated yet. Position 3 must therefore not use position 4.</p>
+</div></section>
+
+<section class="step"><div class="num">2</div><div>
+  <h2>Embeddings and projection matrices</h2>
+  <p>Each token gets a 3-dimensional binary embedding <b class="v m">x</b><sub><var>j</var></sub>. Only <span class="fut">slept</span> has feature 3 equal to 1, so feature 3 identifies slept.</p>
+  <div class="panel scroll"><table>
+    <thead><tr><th>Position</th><th>Token</th><th>x<sub>j</sub> (1×3)</th><th>feature 1</th><th>feature 2</th><th>feature 3</th></tr></thead>
+    <tbody id="xTable"></tbody>
+  </table></div>
+  <p>The same three projection matrices are applied at every position. Each matrix has a simple effect.</p>
+  <div class="panel mats" id="projMats"></div>
+  <div class="key"><b class="v m">W</b><sub>V</sub> copies feature 3 into value coordinate 2. So if an output has a nonzero coordinate 2, it used the value of <span class="fut">slept</span>. We use coordinate 2 to detect leakage.</div>
+  <p class="note">Positional encodings are omitted to keep the arithmetic simple. The mask works the same way with them.</p>
+</div></section>
+
+<section class="step"><div class="num">3</div><div>
+  <h2>Compute query 3</h2>
+  <p>Multiply the embedding at position 3 by <b class="v m">W</b><sub>Q</sub>. Each entry of the result is the dot product of the row vector with one column of the matrix.</p>
+  <div class="panel" id="qWork"></div>
+  <p>This query is compared with the key of each position it is allowed to use.</p>
+</div></section>
+
+<section class="step"><div class="num">4</div><div>
+  <h2>Compute keys and values</h2>
+  <p>Each position has a key, which is compared with queries, and a value, which is combined into the output. Here the key keeps features 1 and 2, and the value keeps features 1 and 3.</p>
+  <div class="panel scroll"><table>
+    <thead><tr><th>Position</th><th>Token</th><th>x<sub>j</sub></th><th>k<sub>j</sub> = x<sub>j</sub>W<sub>K</sub></th><th>v<sub>j</sub> = x<sub>j</sub>W<sub>V</sub></th></tr></thead>
+    <tbody id="kvTable"></tbody>
+  </table></div>
+  <p><span class="cat">cat</span> and <span class="fut">slept</span> have the same key. So without a mask, query 3 gives them equal weight.</p>
+</div></section>
+
+<section class="step"><div class="num">5</div><div>
+  <h2>Compute scores for query 3</h2>
+  <p>The raw score is the dot product <var>q</var><sub>3</sub>·<var>k</var><sub><var>j</var></sub>. We then divide by √<var>d</var><sub><var>k</var></sub> = √2. This is the standard scaling in Transformer attention.</p>
+  <div class="panel scroll"><table>
+    <thead><tr><th>Key</th><th>q<sub>3</sub> · k<sub>j</sub></th><th>Raw score</th><th>Scaled (÷√2)</th></tr></thead>
+    <tbody id="scoreTable"></tbody>
+  </table></div>
+  <p>The mask has not been applied yet. The score for <span class="fut">slept</span> is computed like the others. The mask is applied in the next step.</p>
+</div></section>
+
+<section class="step"><div class="num">6</div><div>
+  <h2>Softmax and output, without and with the mask</h2>
+  <p>Softmax converts scores into weights that sum to 1. The mask is applied before softmax: scores for future positions are set to −∞. Since e<sup>−∞</sup> = 0, those positions get zero weight, and the other weights are renormalized.</p>
+  <div class="twin" id="twin"></div>
+  <div class="panel scroll" id="sumWork"></div>
+  <div class="key" id="leakKey"></div>
+</div></section>
+
+<section class="step"><div class="num">7</div><div>
+  <h2>Why the leak matters</h2>
+  <p>Without the mask, the output at position 3 has 0.366 in coordinate 2, which comes only from <span class="fut">slept</span>. A decoder trained this way can learn the rule “if coordinate 2 is positive, predict <em>slept</em>.” Training loss becomes low.</p>
+  <p>At inference the decoder generates left to right. When position 3 predicts the next word, position 4 does not exist yet, so coordinate 2 is 0. The rule learned in training no longer applies, and predictions are poor. The training loss does not show this problem.</p>
+  <div class="key good">With the mask, position 3 uses only ⟨BOS⟩, The and cat, in both training and inference. All positions are still computed together in one matrix multiplication. The mask only sets some weights to zero.</div>
+</div></section>
+
+<section class="step"><div class="num">8</div><div>
+  <h2>Lab: all queries</h2>
+  <p>Each position has its own query, and attention for all positions is one 4×4 matrix computation. Select a row, change the masking, and compare two common implementation errors.</p>
+  <div class="panel">
+    <div class="controls">
+      <fieldset><legend>Inspect query</legend><div class="seg" id="rowSeg"></div></fieldset>
+      <fieldset><legend>Masking</legend><div class="seg" id="maskSeg"></div></fieldset>
+      <fieldset><legend>Scaling</legend><div class="seg" id="scaleSeg"></div></fieldset>
+    </div>
+    <div class="scroll"><div class="grids grid4" id="labGrids"></div></div>
+    <div id="labDetail"></div>
+    <div class="verdict" id="verdict"></div>
+  </div>
+  <p class="note">Shaded cells are masked. A red outline marks weight on a future position. Click a row to select that query.</p>
+</div></section>
+
+<section class="step"><div class="num">9</div><div>
+  <h2>Check yourself</h2>
+  <details><summary>Why is position 3 allowed to attend to itself?</summary>
+    <p>Its target is the next token, slept. When slept is predicted, cat has already been generated, so cat is available at inference. The mask removes positions <var>j</var> &gt; <var>i</var>, not <var>j</var> ≥ <var>i</var>.</p></details>
+  <details><summary>Query 4 (slept) has 0.366 in coordinate 2 even with the mask on. Is that a leak?</summary>
+    <p>No. The input at position 4 is slept and its target is the period, so slept is part of its prefix. A leak means weight on a position after the query, and query 4 has none. Coordinate 2 indicates a leak only for queries 1–3.</p></details>
+  <details><summary>Query 1 is [0 0], so it scores every key as 0. Can it still leak?</summary>
+    <p>Yes. Equal scores give weights of 1/4 each, including on slept, and the output is [0.75 0.25]. Any nonzero weight on a future position adds its value to the output. With the mask, query 1 sees only ⟨BOS⟩ and outputs [0 0].</p></details>
+  <details><summary>What goes wrong if you mask by setting forbidden scores to 0 instead of −∞?</summary>
+    <p>e<sup>0</sup> = 1, so future positions still get weight. For query 3, slept gets weight 0.123 and coordinate 2 is 0.123. Use −∞ (or a large negative number) so the exponential is 0.</p></details>
+  <details><summary>Why not just zero the weights after softmax?</summary>
+    <p>This removes the leak, but the remaining weights no longer sum to 1. For query 3 they sum to 0.635, and the output is [0.546 0]. Each row is scaled by a different amount. Masking before softmax renormalizes the weights: 0.140, 0.284, 0.576.</p></details>
+  <details><summary>A real decoder has several layers. Is it enough to mask only the first?</summary>
+    <p>No. Each self-attention layer combines positions again. If layer 2 were unmasked, position 3 could use the layer-1 output at position 4, which contains slept. With every decoder self-attention layer masked, the representation at position <var>i</var> depends only on positions 1…<var>i</var>. Cross-attention to the encoder needs no causal mask, because the full source sentence is available at inference.</p></details>
+</div></section>
+</main>
+
+<script>
+(function(){
+  // theme toggle
+  const root=document.documentElement, btn=document.getElementById('themeBtn');
+  const sysDark=()=>window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches;
+  let saved=null; try{saved=localStorage.getItem('cm-theme')}catch(e){}
+  if(saved) root.dataset.theme=saved;
+  const label=()=>{const d=root.dataset.theme?root.dataset.theme==='dark':sysDark();btn.textContent=d?'Light mode':'Dark mode'};
+  btn.onclick=()=>{const d=root.dataset.theme?root.dataset.theme==='dark':sysDark();root.dataset.theme=d?'light':'dark';try{localStorage.setItem('cm-theme',root.dataset.theme)}catch(e){}label()};
+  label();
+
+  const toks=['⟨BOS⟩','The','cat','slept'];
+  const X=[[0,0,0],[1,0,0],[1,1,0],[1,1,1]];
+  const WQ=[[0,1],[1,0],[0,0]], WK=[[1,0],[0,1],[0,0]], WV=[[1,0],[0,0],[0,1]];
+  const mul=(x,W)=>W[0].map((_,c)=>x.reduce((s,xi,r)=>s+xi*W[r][c],0));
+  const dot=(a,b)=>a.reduce((s,ai,i)=>s+ai*b[i],0);
+  const Q=X.map(x=>mul(x,WQ)), K=X.map(x=>mul(x,WK)), V=X.map(x=>mul(x,WV));
+  const f=(n,d=3)=>{if(n===-Infinity)return'−∞'; const s=(Math.abs(n)<5e-5?0:n).toFixed(d); return s.replace(/\.?0+$/,'')||'0'};
+  const f3=n=>n===-Infinity?'−∞':(Math.abs(n)<5e-5?0:n).toFixed(3);
+  const mat=(rows,cls='')=>`<span class="mat ${cls}" style="grid-template-columns:repeat(${rows[0].length},auto)">${rows.flat().map(v=>`<span>${typeof v==='number'?f(v):v}</span>`).join('')}</span>`;
+  const rowCls=i=>i===2?'rc':i===3?'rf':'';
+  const tokHtml=i=>i===2?`<span class="cat">${toks[i]}</span>`:i===3?`<span class="fut">${toks[i]}</span>`:toks[i];
+
+  // step 2
+  document.getElementById('xTable').innerHTML=X.map((x,i)=>`<tr class="${rowCls(i)}"><td>${i+1}</td><td>${tokHtml(i)}</td><td>${mat([x])}</td>${x.map((v,c)=>`<td class="${v?'':'dim'}">${v?'on':'off'}</td>`).join('')}</tr>`).join('');
+  document.getElementById('projMats').innerHTML=[
+    ['Q',WQ,'Swaps features 1 and 2; ignores feature 3.'],
+    ['K',WK,'Keeps features 1 and 2; ignores feature 3.'],
+    ['V',WV,'Keeps feature 1, and copies feature 3 into coordinate 2.']
+  ].map(([n,W,c])=>`<figure><span><b class="v m">W</b><sub>${n}</sub> =</span>${mat(W)}<figcaption>${c}</figcaption></figure>`).join('');
+
+  // step 3
+  const x3=X[2], q3=Q[2];
+  const col=c=>x3.map((xi,r)=>`${xi}·${WQ[r][c]}`).join(' + ');
+  document.getElementById('qWork').innerHTML=`
+   <div class="eqrow"><span><b class="v m">q</b><sub>3</sub> = <b class="v m">x</b><sub>3</sub><b class="v m">W</b><sub>Q</sub> =</span>${mat([x3])}${mat(WQ)}<span>=</span>${mat([q3],'cat')}</div>
+   <p class="work">Entry 1: ${col(0)} = ${q3[0]} &nbsp;&nbsp; Entry 2: ${col(1)} = ${q3[1]}</p>`;
+
+  // step 4
+  document.getElementById('kvTable').innerHTML=X.map((x,i)=>`<tr class="${rowCls(i)}"><td>${i+1}</td><td>${tokHtml(i)}</td><td>${mat([x])}</td><td>${mat([K[i]])}</td><td>${mat([V[i]])}</td></tr>`).join('');
+
+  // step 5
+  const raw3=K.map(k=>dot(q3,k)), sc3=raw3.map(s=>s/Math.SQRT2);
+  document.getElementById('scoreTable').innerHTML=K.map((k,i)=>`<tr class="${rowCls(i)}"><td>k<sub>${i+1}</sub> (${tokHtml(i)})</td><td class="work">1·${k[0]} + 1·${k[1]}</td><td>${raw3[i]}</td><td>${f3(sc3[i])}</td></tr>`).join('');
+
+  // step 6
+  const softmax=s=>{const m=Math.max(...s.filter(v=>v!==-Infinity));const e=s.map(v=>v===-Infinity?0:Math.exp(v-m));const z=e.reduce((a,b)=>a+b,0);return{e:s.map(v=>v===-Infinity?0:Math.exp(v)),w:e.map(v=>v/z)}};
+  const um=softmax(sc3), msc=sc3.map((s,j)=>j>2?-Infinity:s), mk=softmax(msc);
+  const outOf=w=>[0,1].map(c=>w.reduce((s,wi,j)=>s+wi*V[j][c],0));
+  const oU=outOf(um.w), oM=outOf(mk.w);
+  const barList=(w,masked)=>`<div class="bars">${w.map((wi,j)=>`<div class="bar ${j===3?'f':''} ${masked&&j===3?'x':''}"><span>${tokHtml(j)}</span><span class="track"><span class="fill" style="width:${(wi*100).toFixed(1)}%;display:block"></span></span><span class="w">${f3(wi)}</span></div>`).join('')}</div>`;
+  const expLine=(s,e)=>`<p class="work">Scores: ${s.map(f3).join(', ')}<br>e<sup>score</sup>: ${e.map(f3).join(', ')} &nbsp;(sum ${f3(e.reduce((a,b)=>a+b,0))})</p>`;
+  document.getElementById('twin').innerHTML=`
+   <div class="panel"><h3>No mask</h3>${expLine(sc3,um.e)}${barList(um.w,false)}
+     <p class="out">Output ${mat([oU.map(f3)])} &nbsp;<span class="leak">coord 2 = ${f3(oU[1])}</span></p></div>
+   <div class="panel"><h3>Causal mask</h3>${expLine(msc,mk.e)}${barList(mk.w,true)}
+     <p class="out">Output ${mat([oM.map(f3)])} &nbsp;<span class="zero">coord 2 = 0</span></p></div>`;
+  const sumRow=(w)=>[0,1].map(c=>w.map((wi,j)=>`${f3(wi)}·${V[j][c]}`).join(' + ')+` = <b>${f3(outOf(w)[c])}</b>`);
+  const sU=sumRow(um.w), sM=sumRow(mk.w);
+  document.getElementById('sumWork').innerHTML=`
+   <p style="margin-top:0">The output is <b class="v m">o</b><sub>3</sub> = Σ<sub>j</sub> α<sub>3j</sub> <b class="v m">v</b><sub>j</sub>, computed one coordinate at a time. Values are v = [${V.map(v=>'['+v.join(' ')+']').join(', ')}].</p>
+   <table><thead><tr><th></th><th>Coordinate 1</th><th>Coordinate 2</th></tr></thead><tbody>
+   <tr><td class="l">No mask</td><td class="work">${sU[0]}</td><td class="work">${sU[1]}</td></tr>
+   <tr><td class="l">Causal mask</td><td class="work">${sM[0]}</td><td class="work">${sM[1]}</td></tr></tbody></table>`;
+  document.getElementById('leakKey').innerHTML=`In coordinate 2 every value is 0 except slept's. So without the mask, coordinate 2 equals slept's weight exactly: <span class="leak">${f3(oU[1])}</span>. So position 3 uses part of the token it must predict. With the mask, slept's weight is exactly 0, and the other weights increase (${f3(um.w[1])} → ${f3(mk.w[1])} for The, ${f3(um.w[2])} → ${f3(mk.w[2])} for cat) because softmax renormalizes over what remains.`;
+
+  // lab
+  const state={row:2,mask:'causal',scale:true};
+  const seg=(id,name,opts,key)=>{document.getElementById(id).innerHTML=opts.map(([v,l])=>`<label><input type="radio" name="${name}" value="${v}" ${String(state[key])===String(v)?'checked':''}><span>${l}</span></label>`).join('');
+    document.getElementById(id).addEventListener('change',e=>{let v=e.target.value;state[key]=key==='row'?+v:key==='scale'?v==='true':v;renderLab()})};
+  seg('rowSeg','row',toks.map((t,i)=>[i,`${i+1} ${t}`]),'row');
+  seg('maskSeg','mask',[['none','None'],['causal','Causal (−∞)'],['zero','Bug: score → 0'],['post','Bug: zero after softmax']],'mask');
+  seg('scaleSeg','scale',[['true','÷√2'],['false','Unscaled']],'scale');
+
+  function compute(){
+    const S=Q.map(q=>K.map(k=>dot(q,k)/(state.scale?Math.SQRT2:1)));
+    const Sm=S.map((r,i)=>r.map((s,j)=>j<=i?s:state.mask==='causal'?-Infinity:state.mask==='zero'?0:s));
+    let A=Sm.map(r=>softmax(r).w);
+    if(state.mask==='post') A=A.map((r,i)=>r.map((w,j)=>j<=i?w:0));
+    const O=A.map(outOf);
+    return{S,Sm,A,O};
+  }
+  function renderLab(){
+    const {S,Sm,A,O}=compute(), r=state.row, maskedCell=(i,j)=>j>i&&state.mask!=='none';
+    const hdr=`<tr><th></th>${toks.map((t,j)=>`<th>${t}</th>`).join('')}</tr>`;
+    const tbl=(cap,M,heat)=>`<table><caption>${cap}</caption><thead>${hdr}</thead><tbody>${M.map((row,i)=>`<tr data-r="${i}" class="${i===r?'sel':''}"><th>q${i+1}</th>${row.map((v,j)=>{const fut=heat&&j>i&&v>1e-9;const bg=heat&&v>0?`style="background:rgba(var(--heat),${(v*0.75).toFixed(3)})"`:'';return `<td class="${maskedCell(i,j)?'masked':''} ${fut?'fl':''}" ${maskedCell(i,j)&&!heat?'':bg}>${f3(v)}</td>`}).join('')}</tr>`).join('')}</tbody></table>`;
+    const shown=state.mask==='post'?S:Sm;
+    document.getElementById('labGrids').innerHTML=tbl(state.mask==='post'?'Scores into softmax':'Scores after masking',shown,false)+tbl('Attention weights α',A,true);
+    document.getElementById('labGrids').querySelectorAll('tr[data-r]').forEach(tr=>tr.addEventListener('click',()=>{state.row=+tr.dataset.r;document.querySelector(`#rowSeg input[value="${state.row}"]`).checked=true;renderLab()}));
+    const w=A[r], fw=w.reduce((s,v,j)=>s+(j>r?v:0),0), sum=w.reduce((a,b)=>a+b,0);
+    document.getElementById('labDetail').innerHTML=`<h3>Query ${r+1} (${tokHtml(r)}): q = [${Q[r].join(' ')}], predicts “${['The','cat','slept','.'][r]}”</h3>
+      <div class="bars">${w.map((v,j)=>`<div class="bar ${j>r?'f':''} ${maskedCell(r,j)?'x':''}"><span>${tokHtml(j)}</span><span class="track"><span class="fill" style="width:${(v*100).toFixed(1)}%;display:block"></span></span><span class="w">${f3(v)}</span></div>`).join('')}</div>
+      <p class="out">Output ${mat([O[r].map(f3)])} &nbsp;<span class="note">weights sum to ${f3(sum)}; weight on future positions ${f3(fw)}</span></p>`;
+    const v=document.getElementById('verdict');
+    const totalLeak=A.reduce((s,row,i)=>s+row.reduce((t,x,j)=>t+(j>i?x:0),0),0);
+    if(totalLeak>1e-9){v.className='verdict bad';v.textContent=state.mask==='zero'
+      ?`Leak. A score of 0 gives e⁰ = 1 in softmax, so future positions still get weight (query ${r+1}: ${f3(fw)}).`
+      :`Leak. Queries 1–3 put weight on tokens that are not available at inference${r<3?` (query ${r+1}: ${f3(fw)} on the future)`:'; query 4 has no future positions'}.`}
+    else if(state.mask==='post'){v.className='verdict warn';v.textContent=`No leak, but the rows do not sum to 1 (query ${r+1}: ${f3(sum)}). Mask before softmax instead.`}
+    else{v.className='verdict good';v.textContent='No leak, and every row sums to 1. This is the correct computation.'}
+  }
+  renderLab();
+})();
+</script>
+</body>
+</html>
