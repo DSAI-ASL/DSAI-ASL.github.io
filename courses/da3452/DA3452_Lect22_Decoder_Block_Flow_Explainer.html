@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Where tokens meet: one decoder block</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#ECEFEC; --panel:#FAFBF9; --ink:#1A2420; --muted:#5B6862; --rule:#C6CEC9;
+  --t0:#2F6BD0; --t1:#D9802A; --t2:#24946A; --t3:#B83F8A;
+  --attn:#6A4CC0; --wall:#1A2420; --mask:#C2473A;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121815; --panel:#1A221E; --ink:#E3EAE6; --muted:#97A59E; --rule:#2F3B35;
+    --t0:#6C9CF0; --t1:#F0A355; --t2:#4DC294; --t3:#E074B6;
+    --attn:#A68EF0; --wall:#E3EAE6; --mask:#EE7B6C;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121815; --panel:#1A221E; --ink:#E3EAE6; --muted:#97A59E; --rule:#2F3B35;
+  --t0:#6C9CF0; --t1:#F0A355; --t2:#4DC294; --t3:#E074B6;
+  --attn:#A68EF0; --wall:#E3EAE6; --mask:#EE7B6C;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Literata",Georgia,serif;font-size:18px;line-height:1.6}
+main{max-width:1080px;margin:0 auto;padding:40px 20px 64px}
+h1{font-family:"Manrope",system-ui,sans-serif;font-weight:800;font-size:clamp(1.9rem,4.6vw,2.9rem);line-height:1.08;letter-spacing:-.02em;margin:0 0 12px}
+.lede{color:var(--muted);max-width:68ch;margin:0 0 26px}
+.ui{font-family:"Manrope",system-ui,sans-serif}
+.stagebox{background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:14px 14px 10px}
+.scroll{overflow-x:auto}
+#flow{display:block;width:100%;min-width:760px;height:auto}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:14px 0 4px}
+.btn{font:600 .9rem "Manrope",sans-serif;background:var(--ink);color:var(--panel);border:0;border-radius:8px;padding:8px 14px;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--rule)}
+.pills{display:flex;flex-wrap:wrap;gap:6px;margin-left:auto}
+.pill{font:600 .78rem "Manrope",sans-serif;background:transparent;color:var(--muted);border:1px solid var(--rule);border-radius:99px;padding:4px 10px;cursor:pointer}
+.pill[aria-current=step]{background:var(--attn);border-color:var(--attn);color:#fff}
+.pill.row{border-style:dashed}
+button:focus-visible{outline:2px solid var(--attn);outline-offset:2px}
+.lower{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:22px;margin-top:22px;align-items:start}
+.cap h2{font-family:"Manrope",sans-serif;font-size:1.3rem;margin:0 0 6px;letter-spacing:-.01em}
+.cap .tag{font:600 .8rem "Manrope",sans-serif;color:var(--muted);margin-bottom:6px}
+.cap .tag b{color:var(--attn)}
+.cap p{margin:0 0 12px}
+.formula{font-family:"Literata",serif;font-style:italic;background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:10px 14px;overflow-x:auto;white-space:nowrap}
+.matrix{background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:10px}
+.matrix svg{display:block;width:100%;height:auto;max-width:420px;margin:0 auto}
+.key{display:flex;flex-wrap:wrap;gap:6px 16px;font:500 .82rem "Manrope",sans-serif;color:var(--muted);margin-top:8px}
+.key i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.take{margin-top:34px;display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.take div{border-top:3px solid var(--attn);padding-top:10px}
+.take div+div{border-color:var(--ink)}
+.take h3{font-family:"Manrope",sans-serif;font-size:1.02rem;margin:0 0 4px}
+.take p{margin:0;font-size:.98rem;color:var(--muted)}
+svg text{font-family:"Manrope",system-ui,sans-serif}
+@media (max-width:760px){.lower,.take{grid-template-columns:1fr}.pills{margin-left:0}body{font-size:17px}}
+</style>
+</head>
+<body>
+<main>
+<h1>Where tokens meet: one decoder block</h1>
+<p class="lede">Each coloured chip is one row of the N × d matrix, one token position. Its colours record which tokens its information came from. Watch when the colours mix, and when the lanes are sealed.</p>
+
+<div class="stagebox">
+  <div class="scroll"><svg id="flow" viewBox="0 0 1000 360" role="img" aria-label="Animated pipeline of a decoder block"></svg></div>
+  <div class="bar">
+    <button class="btn ghost" id="prev" type="button">Back</button>
+    <button class="btn" id="play" type="button">Play</button>
+    <button class="btn ghost" id="next" type="button">Next</button>
+    <div class="pills" id="pills" role="group" aria-label="Stages"></div>
+  </div>
+</div>
+
+<div class="lower">
+  <div class="cap" aria-live="polite">
+    <div class="tag" id="ctag"></div>
+    <h2 id="ctitle"></h2>
+    <p id="ctext"></p>
+    <div class="formula" id="cform"></div>
+  </div>
+  <div class="matrix">
+    <svg id="mat" viewBox="0 0 380 330" role="img" aria-label="Attention matrix with causal mask"></svg>
+    <div class="key"><span><i style="background:var(--attn)"></i>attention weight</span><span><i style="background:var(--mask);opacity:.35"></i>masked (future)</span></div>
+  </div>
+</div>
+
+<div class="take">
+  <div><h3>Attention mixes across rows</h3><p>It is the only operation where row i reads from other rows, and the causal mask limits it to rows 1…i. Every colour blend in the animation happens here.</p></div>
+  <div><h3>Everything else is row-wise</h3><p>LayerNorm, the Q/K/V projections, the FFN and the residual adds act on each row alone with shared weights. That is why all N rows can go through as one matrix multiply.</p></div>
+</div>
+</main>
+
+<script>
+(function(){
+const TOK=['The','cat','slept','well'];
+const A=[[1],[0.35,0.65],[0.15,0.55,0.30],[0.10,0.20,0.45,0.25]];
+const FUT=[[0,0.9,1.4,0.6],[0,0,1.1,0.3],[0,0,0,0.8]]; // unmasked raw scores for future keys (shown then masked)
+const S=A.map((r,i)=>[0,1,2,3].map(j=>j<=i?+(Math.log(r[j])+2).toFixed(2):(FUT[i]?FUT[i][j]:0)));
+const X={X:100,LN1:185,AIN:278,AOUT:452,R1:535,LN2:620,FFN:735,R2:848,OUT:940};
+const laneY=i=>88+i*70;
+const STAGES=[
+ {k:'Input',tag:'row-wise',title:'Input rows X',dur:1200,
+  text:'Three tokens, already embedded with position information. X is N × d: one row per token. Each chip has a single colour because, so far, each row only knows about its own token.',
+  f:'X ∈ ℝ<sup>N×d</sup>, &nbsp;row i = embedding of token i'},
+ {k:'LayerNorm',tag:'row-wise',title:'LayerNorm, one row at a time',dur:1500,
+  text:'LayerNorm uses each row’s own mean and variance. The walls between lanes are closed: no row looks at another.',
+  f:'LN(x<sub>i</sub>) = γ ⊙ (x<sub>i</sub> − μ<sub>i</sub>)/σ<sub>i</sub> + β'},
+ {k:'Q K V',tag:'row-wise',title:'Every row makes a query, key and value',dur:1500,
+  text:'The same W<sub>Q</sub>, W<sub>K</sub>, W<sub>V</sub> multiply every row. Still independent: row i’s q, k, v depend only on row i.',
+  f:'Q = LN(X)W<sub>Q</sub>, &nbsp;K = LN(X)W<sub>K</sub>, &nbsp;V = LN(X)W<sub>V</sub>'},
+ {k:'Scores + mask',tag:'<b>across rows</b>',title:'Each query scores every key, then the mask hides the future',dur:3600,
+  text:'QKᵀ is N × N: entry (i, j) asks how relevant token j is to token i. The causal mask sets every j > i to −∞, so after softmax those weights are exactly 0. Each row of weights sums to 1.',
+  f:'softmax<sub>row</sub>( QKᵀ/√d<sub>k</sub> + M ), &nbsp;M<sub>ij</sub> = −∞ for j &gt; i'},
+ {k:'Mixing',tag:'<b>across rows</b>',title:'Mixing: each row becomes a blend of earlier values',dur:3800,
+  text:'This is the only place information moves between positions. Row i’s output is a weighted sum of value rows 1…i. “slept” now carries a lot of “cat”. “The” can only see itself, so it stays pure.',
+  f:'u<sub>i</sub> = Σ<sub>j ≤ i</sub> α<sub>ij</sub> v<sub>j</sub> &nbsp;(then W<sub>O</sub>, applied row-wise)'},
+ {k:'Residual',tag:'row-wise',title:'Residual add',dur:1500,
+  text:'Each row adds what it gathered to its own original self. The skip path runs inside each lane.',
+  f:'O = X + U'},
+ {k:'LayerNorm',tag:'row-wise',title:'LayerNorm again',dur:1300,
+  text:'Lanes sealed again. Normalisation is per row.',
+  f:'Z = LN(O)'},
+ {k:'FFN',tag:'row-wise',title:'The same FFN, each row on its own',dur:2600,
+  text:'One FFN, one set of weights, stamped onto every lane. Row i is transformed (the hatching) but receives nothing from other rows, so its colour mix does not change. Because the rows are independent, all N go through together as a single (N × d)(d × d<sub>ff</sub>) multiply. That is the parallelism.',
+  f:'f<sub>i</sub> = FFN(z<sub>i</sub>) &nbsp;for every i, same W<sub>1</sub>, W<sub>2</sub>, W<sub>3</sub>'},
+ {k:'Out',tag:'row-wise',title:'Residual add, on to the next block',dur:1500,
+  text:'The block output has the same shape as its input, N × d. The next block repeats the pattern: mix in attention, process alone in the FFN. Stacking blocks lets information hop across many positions.',
+  f:'X<sup>next</sup> = O + F'},
+ {k:'Generate',tag:'<b>sequential</b>',title:'Generation: one new row at a time',dur:6500,row:true,
+  text:'At inference a new token, “well”, is appended. Rows 1–3 never see later tokens, so their outputs do not change, and their keys and values are cached. Only the new row runs through the block, attending to the cached K and V. Prompt rows go in parallel; generated tokens arrive one by one.',
+  f:'q<sub>4</sub> attends to [k<sub>1</sub>, k<sub>2</sub>, k<sub>3</sub> (cached), k<sub>4</sub>]'}
+];
+const END=[X.X,X.LN1,X.AIN,X.AIN,X.AOUT,X.R1,X.LN2,X.FFN,X.OUT];
+
+const reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+let stage=0,p=reduce?1:0,playing=false,hold=0,last=0,clock=0;
+const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+const lerp=(a,b,t)=>a+(b-a)*t;
+
+function own(i){return [{c:i,w:1}];}
+function U(i){return A[i].map((w,c)=>({c,w}));}
+function mix(a,b,t){const m={};a.forEach(s=>m[s.c]=(m[s.c]||0)+s.w*(1-t));b.forEach(s=>m[s.c]=(m[s.c]||0)+s.w*t);
+  return Object.keys(m).map(c=>({c:+c,w:m[c]})).filter(s=>s.w>1e-4);}
+function O(i){return mix(own(i),U(i),.5);}
+
+function chip(x,y,comp,{hatch=false,dim=1,tags=false}={}){
+  const w=54,h=24,x0=x-w/2;let s=`<g opacity="${dim}">`;let cx=x0;
+  comp.slice().sort((a,b)=>a.c-b.c).forEach(seg=>{const sw=w*seg.w;s+=`<rect x="${cx}" y="${y-h/2}" width="${sw+.3}" height="${h}" style="fill:var(--t${seg.c})"/>`;cx+=sw;});
+  if(hatch)s+=`<rect x="${x0}" y="${y-h/2}" width="${w}" height="${h}" fill="url(#hatch)"/>`;
+  s+=`<rect x="${x0}" y="${y-h/2}" width="${w}" height="${h}" rx="3" style="fill:none;stroke:var(--ink);stroke-width:1.4"/>`;
+  if(tags)['q','k','v'].forEach((t,k)=>{s+=`<text x="${x0+9+k*18}" y="${y+h/2+14}" font-size="12" font-weight="700" style="fill:var(--attn)">${t}</text>`;});
+  return s+'</g>';
+}
+function flowPath(j,i){const x1=X.AIN+28,x2=X.AOUT-28,y1=laneY(j),y2=laneY(i);
+  return `M${x1},${y1} C${x1+80},${y1} ${x2-80},${y2} ${x2},${y2}`;}
+
+function render(){
+  const st=stage,e=ease(p),gen=st===9,n=gen?4:3;
+  let s=`<defs><pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" style="stroke:var(--panel);stroke-width:2.2;opacity:.75"/></pattern></defs>`;
+  // column heads
+  const heads=[[X.X,'X'],[X.LN1,'LN'],[(X.AIN+X.AOUT)/2,'Causal attention'],[X.R1,'+ X'],[X.LN2,'LN'],[X.FFN,'FFN'],[X.R2,'+ O'],[X.OUT,'X next']];
+  const active={0:[0],1:[1],2:[2],3:[2],4:[2],5:[3],6:[4],7:[5],8:[6,7]}[st]||[];
+  heads.forEach(([x,t],k)=>{s+=`<text x="${x}" y="30" text-anchor="middle" font-size="13" font-weight="${active.includes(k)?800:600}" style="fill:var(${active.includes(k)?'--ink':'--muted'})">${t}</text>`;});
+  // attention zone
+  const azOn=st>=2&&st<=4||gen;
+  s+=`<rect x="${X.AIN-34}" y="48" width="${X.AOUT-X.AIN+68}" height="${n*70+4}" rx="12" style="fill:var(--attn);opacity:${azOn?.12:.05};stroke:var(--attn);stroke-opacity:${azOn?.6:.2};stroke-dasharray:4 5"/>`;
+  // walls
+  const rowwise=[1,6,7].includes(st);
+  for(let k=0;k<n-1;k++){const y=laneY(k)+35;
+    const sty=`stroke:var(--wall);stroke-width:${rowwise?3:1.2};opacity:${rowwise?.85:.22}`;
+    s+=`<line x1="58" y1="${y}" x2="${X.AIN-40}" y2="${y}" style="${sty}"/><line x1="${X.AOUT+40}" y1="${y}" x2="988" y2="${y}" style="${sty}"/>`;}
+  if(st===7){s+=`<text x="${X.FFN}" y="${laneY(n-1)+60}" text-anchor="middle" font-size="12" font-weight="700" style="fill:var(--ink)">one set of weights, applied to every lane</text>`;}
+  // per-lane furniture
+  for(let i=0;i<n;i++){const y=laneY(i);
+    const lab=TOK[i]+(gen&&i===3?' (new)':'');
+    s+=`<text x="54" y="${y+5}" text-anchor="end" font-size="14" font-weight="700" style="fill:var(--t${i})">${lab}</text>`;
+    s+=`<rect x="${X.LN1-24}" y="${y-17}" width="48" height="34" rx="6" style="fill:none;stroke:var(--muted);stroke-opacity:.45"/>`;
+    s+=`<rect x="${X.LN2-24}" y="${y-17}" width="48" height="34" rx="6" style="fill:none;stroke:var(--muted);stroke-opacity:.45"/>`;
+    s+=`<rect x="${X.FFN-40}" y="${y-21}" width="80" height="42" rx="7" style="fill:var(--ink);fill-opacity:${st===7?.1:.04};stroke:var(--ink);stroke-opacity:${st===7?.9:.35};stroke-width:${st===7?2:1}"/>`;
+    s+=`<text x="${X.FFN}" y="${y-25}" text-anchor="middle" font-size="10" style="fill:var(--muted)">FFN</text>`;
+    [X.R1,X.R2].forEach(x=>{s+=`<circle cx="${x}" cy="${y}" r="9" style="fill:var(--panel);stroke:var(--muted)"/><text x="${x}" y="${y+4}" text-anchor="middle" font-size="13" style="fill:var(--muted)">+</text>`;});
+    const resOn1=st===5||(gen&&i===3), resOn2=st===8||(gen&&i===3);
+    s+=`<path d="M${X.X+28},${y-8} C${X.X+70},${y-31} ${X.R1-60},${y-31} ${X.R1-6},${y-9}" style="fill:none;stroke:var(--ink);stroke-width:${st===5?2:1};opacity:${st===5?.8:.18};stroke-dasharray:3 4"/>`;
+    s+=`<path d="M${X.R1+8},${y-7} C${X.R1+60},${y-31} ${X.R2-60},${y-31} ${X.R2-6},${y-9}" style="fill:none;stroke:var(--ink);stroke-width:${st===8?2:1};opacity:${st===8?.8:.18};stroke-dasharray:3 4"/>`;
+  }
+  if(!gen){
+    // score lines and mask
+    if(st===3){for(let i=0;i<3;i++)for(let j=0;j<3;j++){
+      const fut=j>i;if(fut&&p<.45)continue;
+      const op=fut?Math.min(1,(p-.45)*4)*.7:Math.min(1,p*3)*.5;
+      s+=`<path d="${flowPath(j,i)}" style="fill:none;stroke:var(${fut?'--mask':'--muted'});stroke-width:1.2;stroke-dasharray:3 4;opacity:${op}"/>`;
+      if(fut){const xm=(X.AIN+X.AOUT)/2,ym=(laneY(i)+laneY(j))/2;s+=`<text x="${xm}" y="${ym+5}" text-anchor="middle" font-size="16" font-weight="800" style="fill:var(--mask);opacity:${op}">×</text>`;}}}
+    if(st===4){for(let i=0;i<3;i++)A[i].forEach((w,j)=>{
+      s+=`<path d="${flowPath(j,i)}" style="fill:none;stroke:var(--t${j});stroke-width:${2+12*w};stroke-linecap:round;opacity:.5;stroke-dasharray:10 9;stroke-dashoffset:${-clock/25}"/>`;});}
+    // chips
+    for(let i=0;i<3;i++){const y=laneY(i);
+      const x0=st===0?X.X:END[st-1],x1=END[st];const x=lerp(x0,x1,e);
+      let comp=st<4?own(i):st===4?mix(own(i),U(i),e):st===5?mix(U(i),O(i),e):O(i);
+      if(st===4){s+=chip(X.AIN,y,own(i),{dim:.3});}
+      s+=chip(x,y,comp,{hatch:st===8||(st===7&&e>.5),dim:st===0?Math.min(1,.2+p*2):1,tags:st===2&&p>.3||st===3});
+    }
+  }else{
+    // generation stage
+    for(let i=0;i<3;i++){const y=laneY(i);
+      s+=chip(X.OUT,y,O(i),{hatch:true,dim:.35});
+      s+=chip(X.AIN,y,own(i),{dim:.45});
+      s+=`<text x="${X.AIN}" y="${y+27}" text-anchor="middle" font-size="10" font-weight="700" style="fill:var(--attn)">k,v cached</text>`;}
+    const kf=[[0,X.X],[.1,X.LN1],[.2,X.AIN],[.5,X.AOUT],[.6,X.R1],[.7,X.LN2],[.84,X.FFN],[1,X.OUT]];
+    let x=X.X;for(let k=0;k<kf.length-1;k++){if(p>=kf[k][0]&&p<=kf[k+1][0]){const t=ease((p-kf[k][0])/(kf[k+1][0]-kf[k][0]));x=lerp(kf[k][1],kf[k+1][1],t);}}
+    const tA=Math.max(0,Math.min(1,(p-.2)/.3)),tR=Math.max(0,Math.min(1,(p-.5)/.1));
+    if(p>.18&&p<.62)A[3].forEach((w,j)=>{s+=`<path d="${flowPath(j,3)}" style="fill:none;stroke:var(--t${j});stroke-width:${2+12*w};stroke-linecap:round;opacity:.5;stroke-dasharray:10 9;stroke-dashoffset:${-clock/25}"/>`;});
+    const comp=p<.5?mix(own(3),U(3),tA):mix(U(3),O(3),tR);
+    s+=chip(x,laneY(3),comp,{hatch:p>.8,tags:p>.12&&p<.22});
+  }
+  document.getElementById('flow').innerHTML=s;
+  renderMatrix();
+}
+
+function renderMatrix(){
+  const st=stage,gen=st===9,n=gen?4:3,c=62,ox=88,oy=70;
+  let s=`<text x="${ox+n*c/2}" y="20" text-anchor="middle" font-size="12" font-weight="700" style="fill:var(--muted)">keys j →</text>`;
+  s+=`<text x="16" y="${oy+n*c/2}" font-size="12" font-weight="700" style="fill:var(--muted)" transform="rotate(-90 16 ${oy+n*c/2})" text-anchor="middle">queries i →</text>`;
+  for(let j=0;j<n;j++)s+=`<text x="${ox+j*c+c/2}" y="${oy-12}" text-anchor="middle" font-size="13" font-weight="700" style="fill:var(--t${j})">${TOK[j]}</text>`;
+  const phase=st<3?'empty':st===3?(p<.45?'scores':p<.8?'masked':'weights'):'weights';
+  for(let i=0;i<n;i++){
+    s+=`<text x="${ox-8}" y="${oy+i*c+c/2+5}" text-anchor="end" font-size="13" font-weight="700" style="fill:var(--t${i})">${TOK[i]}</text>`;
+    const rowDim=gen&&i<3?.35:1;
+    for(let j=0;j<n;j++){const x=ox+j*c,y=oy+i*c,fut=j>i;
+      let fill='none',op=0,txt='',tc='--muted';
+      if(phase==='empty'){txt='·';}
+      else if(phase==='scores'){txt=S[i][j].toFixed(2);tc='--ink';}
+      else if(fut){fill='var(--mask)';op=.18;txt=phase==='masked'?'−∞':'0';tc='--mask';}
+      else if(phase==='masked'){txt=S[i][j].toFixed(2);tc='--ink';}
+      else{const w=A[i][j];fill='var(--attn)';op=.12+.75*w;txt=w.toFixed(2);tc=w>.4?'--panel':'--ink';}
+      s+=`<g opacity="${rowDim}"><rect x="${x+2}" y="${y+2}" width="${c-4}" height="${c-4}" rx="5" style="fill:${fill==='none'?'transparent':fill};fill-opacity:${op};stroke:var(--rule)"/>`;
+      s+=`<text x="${x+c/2}" y="${y+c/2+5}" text-anchor="middle" font-size="14" font-weight="600" style="fill:var(${tc})">${txt}</text></g>`;
+    }}
+  const note=phase==='empty'?'Filled in at the attention step':phase==='scores'?'Raw scores QKᵀ/√d_k':phase==='masked'?'Future positions set to −∞':gen?'Only the new row is computed':'Softmax weights; each row sums to 1';
+  s+=`<text x="${ox+n*c/2}" y="${oy+n*c+28}" text-anchor="middle" font-size="12" style="fill:var(--muted)">${note}</text>`;
+  document.getElementById('mat').innerHTML=s;
+}
+
+function setCaption(){const S_=STAGES[stage];
+  document.getElementById('ctag').innerHTML=`Step ${stage+1} of ${STAGES.length} · ${S_.tag}`;
+  document.getElementById('ctitle').textContent=S_.title;
+  document.getElementById('ctext').innerHTML=S_.text;
+  document.getElementById('cform').innerHTML=S_.f;
+  document.querySelectorAll('.pill').forEach((b,k)=>{if(k===stage)b.setAttribute('aria-current','step');else b.removeAttribute('aria-current');});
+}
+function go(k){stage=Math.max(0,Math.min(STAGES.length-1,k));p=reduce?1:0;hold=0;setCaption();render();}
+
+const pills=document.getElementById('pills');
+pills.innerHTML=STAGES.map((s,k)=>`<button type="button" class="pill${s.row?' row':''}" data-k="${k}">${s.k}</button>`).join('');
+pills.addEventListener('click',e=>{const b=e.target.closest('.pill');if(b)go(+b.dataset.k);});
+document.getElementById('prev').onclick=()=>go(stage-1);
+document.getElementById('next').onclick=()=>go(stage+1);
+const playBtn=document.getElementById('play');
+playBtn.onclick=()=>{playing=!playing;if(playing&&stage===STAGES.length-1&&p>=1)go(0);playBtn.textContent=playing?'Pause':'Play';};
+
+function loop(ts){const dt=last?Math.min(64,ts-last):16;last=ts;clock+=dt;
+  if(p<1){p=Math.min(1,p+dt/STAGES[stage].dur);}
+  else if(playing){hold+=dt;if(hold>1300){if(stage<STAGES.length-1)go(stage+1);else{playing=false;playBtn.textContent='Replay';}}}
+  render();requestAnimationFrame(loop);}
+setCaption();render();requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
