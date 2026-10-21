@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Saral Presentations – Autonomous Simulations Lab</title>
+    <title>Presentations – Autonomous Simulations Lab</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -76,6 +76,52 @@
         .page-intro p {
             font-size: 1.1em;
         }
+        .section-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 25px 0 0;
+            border-bottom: 2px solid #002147;
+        }
+        .section-tab {
+            background: #f0f7ff;
+            color: #002147;
+            border: 2px solid #002147;
+            border-bottom: none;
+            padding: 12px 24px;
+            cursor: pointer;
+            font-size: 1.05em;
+            font-weight: bold;
+            border-radius: 8px 8px 0 0;
+            transition: all 0.3s ease;
+        }
+        .section-tab:hover {
+            background: #e3f2fd;
+        }
+        .section-tab.active {
+            background: #002147;
+            color: white;
+        }
+        .section-panel {
+            display: none;
+            padding: 30px 0;
+        }
+        .section-panel.active {
+            display: block;
+        }
+        .section-panel-header {
+            margin-bottom: 20px;
+        }
+        .section-panel-header h3 {
+            color: #002147;
+            margin: 0 0 10px;
+            font-size: 1.6em;
+        }
+        .section-panel-header p {
+            font-size: 1.05em;
+            color: #444;
+            margin: 0 0 10px;
+        }
         .saral-link {
             background: #e8f5e9;
             padding: 15px 20px;
@@ -90,6 +136,32 @@
         }
         .saral-link a:hover {
             text-decoration: underline;
+        }
+        .page-link {
+            background: #fff3e0;
+            padding: 15px 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+            border-left: 4px solid #ff9800;
+        }
+        .page-link strong {
+            color: #002147;
+        }
+        .page-feature {
+            margin-bottom: 30px;
+        }
+        .page-feature h4 {
+            color: #002147;
+            font-size: 1.2em;
+            margin: 0 0 8px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #ffcc80;
+        }
+        .page-feature .meta {
+            font-size: 0.95em;
+            color: #666;
+            margin-bottom: 10px;
+            font-style: italic;
         }
         .presentations-container {
             padding: 30px 0;
@@ -159,13 +231,74 @@
             overflow: hidden;
             background: #002147;
         }
-        .video-container video {
+        .video-container video,
+        .video-container iframe {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             border: none;
+        }
+        .yt-thumb {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+            text-decoration: none;
+            overflow: hidden;
+        }
+        .yt-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.4s ease, filter 0.3s ease;
+        }
+        .yt-thumb:hover img {
+            transform: scale(1.03);
+            filter: brightness(0.75);
+        }
+        .yt-thumb::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 72px;
+            height: 50px;
+            background: rgba(0, 0, 0, 0.75);
+            border-radius: 14px;
+            transition: background 0.3s ease;
+        }
+        .yt-thumb::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-40%, -50%);
+            width: 0;
+            height: 0;
+            border-top: 12px solid transparent;
+            border-bottom: 12px solid transparent;
+            border-left: 20px solid #fff;
+            z-index: 2;
+        }
+        .yt-thumb:hover::after {
+            background: #cc0000;
+        }
+        @media (max-width:600px) {
+            .yt-thumb::after {
+                width: 56px;
+                height: 40px;
+            }
+            .yt-thumb::before {
+                border-top-width: 9px;
+                border-bottom-width: 9px;
+                border-left-width: 15px;
+            }
         }
         .video-placeholder {
             position: absolute;
@@ -279,6 +412,16 @@
         .nav-toggle[aria-expanded="true"] span:nth-child(3) {
             transform: translateY(-7px) rotate(-45deg);
         }
+        @media (max-width:900px) {
+            main {
+                margin: 20px 10px;
+                box-shadow: none;
+            }
+            .section-tab {
+                padding: 10px 16px;
+                font-size: 0.95em;
+            }
+        }
         @media (max-width:600px) {
             nav {
                 position: relative;
@@ -294,20 +437,108 @@
             nav ul.nav-open {
                 display: flex;
             }
+            header {
+                padding: 20px 15px;
+            }
+            header img {
+                max-width: 80px;
+            }
             header h1 {
-                font-size: 1.6em;
+                font-size: 1.3em;
             }
             main {
-                margin: 20px auto;
+                margin: 15px 8px;
+                padding: 0 12px;
+            }
+            .page-intro {
+                padding: 20px 0;
+            }
+            .page-intro h2 {
+                font-size: 1.5em;
+            }
+            .page-intro p {
+                font-size: 1em;
+            }
+            .section-tabs {
+                flex-direction: column;
+                gap: 6px;
+                border-bottom: none;
+            }
+            .section-tab {
+                width: 100%;
+                border-radius: 6px;
+                border: 2px solid #002147;
+                padding: 10px 14px;
+                font-size: 1em;
+                text-align: left;
+            }
+            .section-panel {
+                padding: 20px 0;
+            }
+            .section-panel-header h3 {
+                font-size: 1.3em;
+            }
+            .section-panel-header p {
+                font-size: 0.98em;
+            }
+            .saral-link,
+            .page-link {
+                padding: 12px 15px;
+                font-size: 0.95em;
+            }
+            .presentations-container {
+                padding: 15px 0;
             }
             .paper-header {
-                padding: 15px;
+                padding: 14px 15px;
             }
             .paper-header-title {
-                font-size: 1em;
+                font-size: 0.98em;
+            }
+            .paper-header-icon {
+                font-size: 1.2em;
+                margin-left: 10px;
             }
             .paper-content-inner {
                 padding: 15px;
+            }
+            .paper-info {
+                padding: 15px;
+            }
+            .paper-abstract {
+                font-size: 0.95em;
+            }
+            .page-feature h4 {
+                font-size: 1.05em;
+            }
+            .page-feature .meta {
+                font-size: 0.88em;
+            }
+            .paper-links a {
+                display: block;
+                margin-right: 0;
+                margin-bottom: 8px;
+                text-align: center;
+                padding: 10px 12px;
+                font-size: 0.95em;
+            }
+            .video-container {
+                margin: 15px 0;
+            }
+            .video-format-notice {
+                font-size: 0.85em;
+                padding: 10px 12px;
+            }
+        }
+        @media (max-width:400px) {
+            header h1 {
+                font-size: 1.1em;
+            }
+            .page-intro h2 {
+                font-size: 1.3em;
+            }
+            .paper-header-title {
+                font-size: 0.9em;
             }
         }
     </style>
@@ -325,7 +556,7 @@
         <ul id="nav-menu">
             <li><a href="index.html">Home</a></li>
             <li><a href="courses.html">Courses</a></li>
-            <li><a href="saral-presentations.html" class="active">Saral Presentations</a></li>
+            <li><a href="saral-presentations.html" class="active">Presentations</a></li>
             <li><a href="index.html#papers">Papers</a></li>
             <li><a href="index.html#projects">Projects</a></li>
             <li><a href="index.html#contact">Contact</a></li>
@@ -334,16 +565,27 @@
     
     <main>
         <div class="page-intro">
-            <h2>Saral Presentations</h2>
-            <p>Research presentations generated using AI-powered tools to communicate our findings effectively.</p>
-            
-            <div class="saral-link">
-                <p><strong>🎥 Powered by Saral:</strong> These presentations were generated using <a href="http://saral.democratiseresearch.in" target="_blank">Saral - Democratise Research</a>, an innovative platform that transforms research papers into engaging video presentations.</p>
+            <h2>Presentations</h2>
+            <p>Research presentations and animated explainers generated using AI-powered tools developed at the Autonomous Simulations Lab.</p>
+
+            <div class="section-tabs" role="tablist">
+                <button class="section-tab active" data-target="page-panel" role="tab" aria-selected="true">PAGE</button>
+                <button class="section-tab" data-target="saral-panel" role="tab" aria-selected="false">Saral Presentations</button>
             </div>
         </div>
-        
+
+        <!-- SARAL PANEL -->
+        <div class="section-panel" id="saral-panel" role="tabpanel">
+            <div class="section-panel-header">
+                <h3>Saral Presentations</h3>
+                <p>Research presentations generated using AI-powered tools to communicate our findings effectively.</p>
+                <div class="saral-link">
+                    <p><strong>🎥 Powered by Saral:</strong> These presentations were generated using <a href="http://saral.democratiseresearch.in" target="_blank">Saral - Democratise Research</a>, an innovative platform that transforms research papers into engaging video presentations.</p>
+                </div>
+            </div>
+
         <div class="presentations-container">
-            
+
             <!-- Paper 1: PIELM -->
             <div class="paper-item">
                 <div class="paper-header" onclick="togglePaper(this)">
@@ -560,8 +802,150 @@
             </div>
             -->
             <!-- END TEMPLATE -->
-            
+
         </div>
+        </div>
+        <!-- /SARAL PANEL -->
+
+        <!-- PAGE PANEL -->
+        <div class="section-panel active" id="page-panel" role="tabpanel">
+            <div class="section-panel-header">
+                <h3>PAGE – Papers to Animation Generation Engine</h3>
+                <p>PAGE converts research papers into high-quality animated explainers, turning dense technical content into intuitive, step-by-step visual narratives.</p>
+                <div class="page-link">
+                    <p><strong>🎞️ About PAGE:</strong> The <strong>Papers to Animation Generation Engine</strong> is an in-house system developed at the Autonomous Simulations Lab for automatically producing <strong>Manim</strong>-based animations directly from research papers.</p>
+                </div>
+            </div>
+
+            <div class="presentations-container">
+
+                <!-- PAGE Feature 1: Demo Usage Video -->
+                <div class="paper-item">
+                    <div class="paper-header active" onclick="togglePaper(this)">
+                        <div class="paper-header-title">
+                            PAGE – Demo Usage Video
+                        </div>
+                        <div class="paper-header-icon">▼</div>
+                    </div>
+                    <div class="paper-content active">
+                        <div class="paper-content-inner">
+                            <div class="page-feature">
+                                <h4>Walkthrough of the PAGE Pipeline</h4>
+                                <div class="meta">A hands-on demo showing how PAGE ingests a paper and produces an animated explainer end-to-end.</div>
+                                <div class="video-container">
+                                    <video controls poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='450' viewBox='0 0 800 450'%3E%3Crect width='800' height='450' fill='%23002147'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='24' fill='white'%3EPAGE Demo Usage%3C/text%3E%3C/svg%3E">
+                                    <source src="[PAGE_DEMO_VIDEO_URL].mp4" type="video/mp4">
+                                        <div class="video-placeholder">
+                                            <div class="icon">📹</div>
+                                            <p>Demo video coming soon.</p>
+                                        </div>
+                                    </video>
+                                </div>
+                                <div class="video-format-notice">
+                                    <strong>Note:</strong> Replace <code>[PAGE_DEMO_VIDEO_URL]</code> with the final hosted URL once the demo video is uploaded.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PAGE Feature 2: AIMLSystems 2026 (Paper Talk + Poster) -->
+                <div class="paper-item">
+                    <div class="paper-header" onclick="togglePaper(this)">
+                        <div class="paper-header-title">
+                            PAGE – Paper Presentation at AIMLSystems 2026, Politecnico di Milano (Lecco Campus), Italy
+                        </div>
+                        <div class="paper-header-icon">▼</div>
+                    </div>
+                    <div class="paper-content">
+                        <div class="paper-content-inner">
+                            <div class="paper-info" style="margin-top:0;">
+                                <div class="paper-abstract">
+                                    <strong>Venue:</strong> AIMLSystems 2026, Politecnico di Milano – Lecco Campus, Italy.
+                                </div>
+                                <div class="paper-abstract">
+                                    <strong>About:</strong> PAGE – the Papers to Animation Generation Engine – was presented at AIMLSystems 2026 as a research paper talk and in the poster session. The talk discusses the systems-level design choices, generation pipeline, and evaluation of automatically producing paper-grounded animated explainers; the poster walks through the architecture, animation primitives, and representative generated explainers.
+                                </div>
+                            </div>
+
+                            <div class="page-feature">
+                                <h4>Paper Talk</h4>
+                                <div class="meta">Oral presentation &nbsp;•&nbsp; AIMLSystems 2026</div>
+                                <div class="video-container">
+                                    <a class="yt-thumb" href="https://youtu.be/-TTE1iu4M0g" target="_blank" rel="noopener" aria-label="Watch PAGE Paper Talk on YouTube">
+                                        <img src="https://i.ytimg.com/vi/-TTE1iu4M0g/maxresdefault.jpg?v=20261021" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/-TTE1iu4M0g/hqdefault.jpg?v=20261021';" alt="PAGE – Paper Talk at AIMLSystems 2026 (opens on YouTube)" loading="lazy">
+                                    </a>
+                                </div>
+                                <div class="paper-links">
+                                    <a href="https://youtu.be/-TTE1iu4M0g" target="_blank" rel="noopener">▶ Watch on YouTube</a>
+                                </div>
+                            </div>
+
+                            <div class="page-feature">
+                                <h4>Poster Presentation</h4>
+                                <div class="meta">Poster session &nbsp;•&nbsp; AIMLSystems 2026</div>
+                                <div class="video-container">
+                                    <a class="yt-thumb" href="https://www.youtube.com/watch?v=loCJQIqH_3Y" target="_blank" rel="noopener" aria-label="Watch PAGE Poster Presentation on YouTube">
+                                        <img src="https://i.ytimg.com/vi/loCJQIqH_3Y/maxresdefault.jpg?v=20261021" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/loCJQIqH_3Y/hqdefault.jpg?v=20261021';" alt="PAGE – Poster Presentation at AIMLSystems 2026 (opens on YouTube)" loading="lazy">
+                                    </a>
+                                </div>
+                                <div class="paper-links">
+                                    <a href="https://www.youtube.com/watch?v=loCJQIqH_3Y" target="_blank" rel="noopener">▶ Watch on YouTube</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PAGE Feature 3: Paper Animation Demos -->
+                <div class="paper-item">
+                    <div class="paper-header" onclick="togglePaper(this)">
+                        <div class="paper-header-title">
+                            PAGE – Paper Animation Demos
+                        </div>
+                        <div class="paper-header-icon">▼</div>
+                    </div>
+                    <div class="paper-content">
+                        <div class="paper-content-inner">
+                            <p>A selection of animated explainers produced by PAGE from recent research papers.</p>
+
+                            <div class="page-feature">
+                                <h4>n-gram Sliding Window (DA3452)</h4>
+                                <div class="meta">An animated walkthrough of the n-gram sliding-window construction used in the DA3452 Speech &amp; Language Technology course.</div>
+                                <div class="video-container">
+                                    <video controls poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='450' viewBox='0 0 800 450'%3E%3Crect width='800' height='450' fill='%23002147'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='24' fill='white'%3En-gram Sliding Window%3C/text%3E%3C/svg%3E">
+                                        <source src="DA3452_ngram_sliding_window.mp4" type="video/mp4">
+                                        <div class="video-placeholder">
+                                            <div class="icon">🎬</div>
+                                            <p>Animation preview unavailable in this browser.</p>
+                                        </div>
+                                    </video>
+                                </div>
+                                <div class="video-format-notice">
+                                    <strong>Note:</strong> Copy <code>manim-videos/DA3452_ngram_sliding_window.mp4</code> into the site root (next to <code>saral-presentations.html</code>) so this video loads.
+                                </div>
+                            </div>
+
+                            <div class="page-feature">
+                                <h4>Additional Paper Animations</h4>
+                                <div class="meta">More PAGE-generated animations will be added here as they are produced.</div>
+                                <div class="video-container">
+                                    <video controls poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='450' viewBox='0 0 800 450'%3E%3Crect width='800' height='450' fill='%23002147'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='24' fill='white'%3EMore Animations Coming Soon%3C/text%3E%3C/svg%3E">
+                                        <source src="[PAGE_ANIMATION_DEMO_URL].mp4" type="video/mp4">
+                                        <div class="video-placeholder">
+                                            <div class="icon">🎬</div>
+                                            <p>Additional animation demos coming soon.</p>
+                                        </div>
+                                    </video>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <!-- /PAGE PANEL -->
     </main>
     
     <footer>
@@ -569,6 +953,23 @@
     </footer>
 
     <script>
+        document.querySelectorAll('.section-tab').forEach(function(tab) {
+            tab.addEventListener('click', function() {
+                var targetId = this.getAttribute('data-target');
+                document.querySelectorAll('.section-tab').forEach(function(t) {
+                    t.classList.remove('active');
+                    t.setAttribute('aria-selected', 'false');
+                });
+                document.querySelectorAll('.section-panel').forEach(function(p) {
+                    p.classList.remove('active');
+                });
+                this.classList.add('active');
+                this.setAttribute('aria-selected', 'true');
+                var panel = document.getElementById(targetId);
+                if (panel) panel.classList.add('active');
+            });
+        });
+
         function togglePaper(header) {
             const content = header.nextElementSibling;
             const allHeaders = document.querySelectorAll('.paper-header');
