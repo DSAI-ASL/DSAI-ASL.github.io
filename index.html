@@ -181,7 +181,19 @@
         .nav-toggle[aria-expanded="true"] span:nth-child(3) {
             transform: translateY(-7px) rotate(-45deg);
         }
+        .header-title-short {
+            display: none;
+        }
         @media (max-width:600px) {
+            .header-logo {
+                display: none;
+            }
+            .header-title-full {
+                display: none;
+            }
+            .header-title-short {
+                display: inline;
+            }
             nav {
                 position: relative;
             }
@@ -207,8 +219,11 @@
 </head>
 <body>
     <header>
-        <img src="logo.png" alt="Lab Logo – IIT Madras">
-        <h1>Autonomous Simulations Lab<br>Data Science &amp; AI, IIT Madras</h1>
+        <img src="logo.png" alt="Lab Logo – IIT Madras" class="header-logo">
+        <h1>
+            <span class="header-title-full">Autonomous Simulations Lab<br>Data Science &amp; AI, IIT Madras</span>
+            <span class="header-title-short">ASL DSAI Lab, IIT Madras</span>
+        </h1>
     </header>
     
     <nav>

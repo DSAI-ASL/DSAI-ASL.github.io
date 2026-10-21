@@ -28,6 +28,9 @@
             margin: 10px 0 0;
             font-size: 2.2em;
         }
+        .header-title-short {
+            display: none;
+        }
         nav {
             background: #003366;
             padding: 0;
@@ -484,6 +487,15 @@
             transform: translateY(-7px) rotate(-45deg);
         }
         @media (max-width:600px) {
+            .header-logo {
+                display: none;
+            }
+            .header-title-full {
+                display: none;
+            }
+            .header-title-short {
+                display: inline;
+            }
             header h1 {
                 font-size: 1.6em;
             }
@@ -523,8 +535,11 @@
 </head>
 <body>
     <header>
-        <img src="logo.png" alt="Lab Logo – IIT Madras">
-        <h1>Autonomous Simulations Lab<br>Data Science &amp; AI, IIT Madras</h1>
+        <img src="logo.png" alt="Lab Logo – IIT Madras" class="header-logo">
+        <h1>
+            <span class="header-title-full">Autonomous Simulations Lab<br>Data Science &amp; AI, IIT Madras</span>
+            <span class="header-title-short">ASL DSAI Lab, IIT Madras</span>
+        </h1>
     </header>
 
     <nav>
