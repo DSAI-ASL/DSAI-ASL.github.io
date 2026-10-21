@@ -129,13 +129,56 @@
             margin: 20px 0;
             border-left: 4px solid #4caf50;
         }
-        .saral-link a {
-            color: #002147;
-            font-weight: bold;
-            text-decoration: none;
+        .saral-link > p {
+            margin: 0 0 12px;
         }
-        .saral-link a:hover {
-            text-decoration: underline;
+        .saral-cta {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: #002147;
+            color: #ffffff !important;
+            padding: 14px 18px;
+            border-radius: 8px;
+            text-decoration: none !important;
+            font-weight: 600;
+            box-shadow: 0 2px 6px rgba(0, 33, 71, 0.25);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+        }
+        .saral-cta:hover {
+            background: #003a7a;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 14px rgba(0, 33, 71, 0.35);
+        }
+        .saral-cta-icon {
+            font-size: 1.6em;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+        .saral-cta-text {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-width: 0;
+            line-height: 1.3;
+        }
+        .saral-cta-title {
+            font-size: 1.1em;
+            font-weight: 700;
+        }
+        .saral-cta-sub {
+            font-size: 0.85em;
+            opacity: 0.85;
+            font-weight: 400;
+            word-break: break-word;
+        }
+        .saral-cta-arrow {
+            font-size: 1.3em;
+            flex-shrink: 0;
+            transition: transform 0.2s ease;
+        }
+        .saral-cta:hover .saral-cta-arrow {
+            transform: translateX(4px);
         }
         .page-link {
             background: #fff3e0;
@@ -486,6 +529,16 @@
                 padding: 12px 15px;
                 font-size: 0.95em;
             }
+            .saral-cta {
+                padding: 12px 14px;
+                gap: 10px;
+            }
+            .saral-cta-title {
+                font-size: 1em;
+            }
+            .saral-cta-sub {
+                font-size: 0.8em;
+            }
             .presentations-container {
                 padding: 15px 0;
             }
@@ -570,17 +623,25 @@
 
             <div class="section-tabs" role="tablist">
                 <button class="section-tab active" data-target="page-panel" role="tab" aria-selected="true">PAGE</button>
-                <button class="section-tab" data-target="saral-panel" role="tab" aria-selected="false">Saral Presentations</button>
+                <button class="section-tab" data-target="saral-panel" role="tab" aria-selected="false">SARAL AI Presentations</button>
             </div>
         </div>
 
         <!-- SARAL PANEL -->
         <div class="section-panel" id="saral-panel" role="tabpanel">
             <div class="section-panel-header">
-                <h3>Saral Presentations</h3>
+                <h3>SARAL AI Presentations</h3>
                 <p>Research presentations generated using AI-powered tools to communicate our findings effectively.</p>
                 <div class="saral-link">
-                    <p><strong>🎥 Powered by Saral:</strong> These presentations were generated using <a href="http://saral.democratiseresearch.in" target="_blank">Saral - Democratise Research</a>, an innovative platform that transforms research papers into engaging video presentations.</p>
+                    <p><strong>🎥 Powered by SARAL AI:</strong> These presentations were generated using SARAL AI – an innovative platform that transforms research papers into engaging video presentations.</p>
+                    <a class="saral-cta" href="http://saral.democratiseresearch.in" target="_blank" rel="noopener">
+                        <span class="saral-cta-icon">🌐</span>
+                        <span class="saral-cta-text">
+                            <span class="saral-cta-title">Visit SARAL AI</span>
+                            <span class="saral-cta-sub">saral.democratiseresearch.in – Democratise Research</span>
+                        </span>
+                        <span class="saral-cta-arrow">→</span>
+                    </a>
                 </div>
             </div>
 
