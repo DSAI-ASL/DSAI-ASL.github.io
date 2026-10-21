@@ -209,6 +209,49 @@
             margin-bottom: 10px;
             font-style: italic;
         }
+        .coming-soon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px 25px;
+            margin: 10px 0;
+            background: linear-gradient(135deg, #f0f7ff 0%, #fff3e0 100%);
+            border: 2px dashed #ff9800;
+            border-radius: 10px;
+        }
+        .coming-soon .cs-icon {
+            font-size: 2.6em;
+            margin-bottom: 10px;
+        }
+        .coming-soon .cs-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #002147;
+            margin: 0 0 6px;
+            letter-spacing: 0.5px;
+        }
+        .coming-soon .cs-sub {
+            font-size: 0.98em;
+            color: #555;
+            margin: 0;
+            max-width: 520px;
+        }
+        @media (max-width:600px) {
+            .coming-soon {
+                padding: 28px 18px;
+            }
+            .coming-soon .cs-icon {
+                font-size: 2.1em;
+            }
+            .coming-soon .cs-title {
+                font-size: 1.1em;
+            }
+            .coming-soon .cs-sub {
+                font-size: 0.9em;
+            }
+        }
         .presentations-container {
             padding: 30px 0;
         }
@@ -902,21 +945,10 @@
                     </div>
                     <div class="paper-content active">
                         <div class="paper-content-inner">
-                            <div class="page-feature">
-                                <h4>Walkthrough of the PAGE Pipeline</h4>
-                                <div class="meta">A hands-on demo showing how PAGE ingests a paper and produces an animated explainer end-to-end.</div>
-                                <div class="video-container">
-                                    <video controls poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='450' viewBox='0 0 800 450'%3E%3Crect width='800' height='450' fill='%23002147'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='24' fill='white'%3EPAGE Demo Usage%3C/text%3E%3C/svg%3E">
-                                    <source src="[PAGE_DEMO_VIDEO_URL].mp4" type="video/mp4">
-                                        <div class="video-placeholder">
-                                            <div class="icon">📹</div>
-                                            <p>Demo video coming soon.</p>
-                                        </div>
-                                    </video>
-                                </div>
-                                <div class="video-format-notice">
-                                    <strong>Note:</strong> Replace <code>[PAGE_DEMO_VIDEO_URL]</code> with the final hosted URL once the demo video is uploaded.
-                                </div>
+                            <div class="coming-soon">
+                                <div class="cs-icon">🎬</div>
+                                <p class="cs-title">Coming Soon</p>
+                                <p class="cs-sub">A walkthrough of the PAGE pipeline – from paper ingestion to a finished animated explainer – will be posted here shortly.</p>
                             </div>
                         </div>
                     </div>
@@ -980,37 +1012,10 @@
                     </div>
                     <div class="paper-content">
                         <div class="paper-content-inner">
-                            <p>A selection of animated explainers produced by PAGE from recent research papers.</p>
-
-                            <div class="page-feature">
-                                <h4>n-gram Sliding Window (DA3452)</h4>
-                                <div class="meta">An animated walkthrough of the n-gram sliding-window construction used in the DA3452 Speech &amp; Language Technology course.</div>
-                                <div class="video-container">
-                                    <video controls poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='450' viewBox='0 0 800 450'%3E%3Crect width='800' height='450' fill='%23002147'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='24' fill='white'%3En-gram Sliding Window%3C/text%3E%3C/svg%3E">
-                                        <source src="DA3452_ngram_sliding_window.mp4" type="video/mp4">
-                                        <div class="video-placeholder">
-                                            <div class="icon">🎬</div>
-                                            <p>Animation preview unavailable in this browser.</p>
-                                        </div>
-                                    </video>
-                                </div>
-                                <div class="video-format-notice">
-                                    <strong>Note:</strong> Copy <code>manim-videos/DA3452_ngram_sliding_window.mp4</code> into the site root (next to <code>saral-presentations.html</code>) so this video loads.
-                                </div>
-                            </div>
-
-                            <div class="page-feature">
-                                <h4>Additional Paper Animations</h4>
-                                <div class="meta">More PAGE-generated animations will be added here as they are produced.</div>
-                                <div class="video-container">
-                                    <video controls poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='450' viewBox='0 0 800 450'%3E%3Crect width='800' height='450' fill='%23002147'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='24' fill='white'%3EMore Animations Coming Soon%3C/text%3E%3C/svg%3E">
-                                        <source src="[PAGE_ANIMATION_DEMO_URL].mp4" type="video/mp4">
-                                        <div class="video-placeholder">
-                                            <div class="icon">🎬</div>
-                                            <p>Additional animation demos coming soon.</p>
-                                        </div>
-                                    </video>
-                                </div>
+                            <div class="coming-soon">
+                                <div class="cs-icon">🎞️</div>
+                                <p class="cs-title">Coming Soon</p>
+                                <p class="cs-sub">PAGE-generated animated explainers for recent research papers will be published here soon.</p>
                             </div>
                         </div>
                     </div>
